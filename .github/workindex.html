@@ -5,312 +5,152 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Interactive Revision Guide - Teacher Qualification Exam</title>
     <!-- Chosen Palette: Calm Academia -->
-    <!-- Application Structure Plan: The SPA uses a responsive dashboard layout with a persistent sidebar navigation. The structure is designed for intuitive exploration. The initial view summarizes key exam components. Clicking a navigation link dynamically updates the main content area, converting static information into interactive charts, accordions, and cards. This non-linear, interactive structure facilitates targeted revision. The application is primarily in English, with specific sections ("Educational Sciences" and "School Life") in Arabic to meet user requirements. -->
+    <!-- Application Structure Plan: The SPA uses a responsive dashboard layout with a persistent sidebar navigation. The structure is designed for intuitive exploration. The initial view is a welcome page. Clicking a navigation link dynamically updates the main content area, converting static information into interactive accordions and styled cards. This non-linear, interactive structure facilitates targeted revision. The application is primarily in English, with specific sections ("Educational Sciences" and "School Life") in Arabic to meet user requirements. -->
     <!-- Visualization & Content Choices: 
-        - Exam Structure (Weights): Goal: Compare -> Viz: Doughnut/Bar Charts (Chart.js) -> Interaction: Hover for tooltips -> Justification: Faster visual comparison than tables.
-        - Methodologies (PPP, ESA): Goal: Organize/Compare -> Viz: Accordion -> Interaction: Click to expand -> Justification: Breaks down heavy text for focused reading.
-        - School Life/Ethics: Goal: Inform -> Viz: Styled Cards, Diagrams (HTML/CSS), Pie Chart (Chart.js) -> Interaction: None -> Justification: Improves scannability and visual appeal for complex topics.
-        - All choices adhere to NO SVG/Mermaid. Diagrams are built with HTML/Tailwind, charts with Chart.js Canvas. -->
+        - All quantitative charts have been removed as per user request.
+        - Methodologies (PPP, ESA), Grammar (Transformations), Writing (Types), etc., are organized into accordions for focused reading.
+        - Key concepts (Roles, Strategies, Principles) are presented in styled cards for better scannability and visual appeal.
+        - All choices adhere to NO SVG/Mermaid. Diagrams and layouts are built with HTML/Tailwind. -->
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&family=Poppins:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&family=Poppins:wght@400;500;700;900&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Poppins', 'Cairo', sans-serif;
-            background-color: #f8f7f4;
-            color: #3d405b;
+            background-color: #f9fafb;
+            color: #1f2937;
         }
         .font-cairo { font-family: 'Cairo', sans-serif; }
-        .chart-container {
-            position: relative;
-            height: 40vh;
-            width: 100%;
-            max-width: 500px;
-            max-height: 400px;
-            margin: auto;
-        }
-        .small-chart-container {
-            position: relative;
-            height: 35vh;
-            width: 100%;
-            max-width: 450px;
-            max-height: 350px;
-            margin: auto;
-        }
         ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #f1f1f1; }
-        ::-webkit-scrollbar-thumb { background: #8d99ae; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #828c9b; }
+        ::-webkit-scrollbar-track { background: #e5e7eb; }
+        ::-webkit-scrollbar-thumb { background: #9ca3af; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #6b7280; }
         .main-content-section { display: none; }
-        .main-content-section.active { display: block; }
-        .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
+        .main-content-section.active { display: block; animation: fadeIn 0.5s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.4s ease-in-out; }
+        .card {
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.05);
+            padding: 2rem;
+            border: 1px solid #e5e7eb;
+        }
+        h1 { font-size: 2.75rem; font-weight: 900; color: #111827; }
+        h2 { font-size: 2rem; font-weight: 700; color: #1d4ed8; }
+        h3 { font-size: 1.5rem; font-weight: 700; }
+        p, li { font-size: 1.1rem; line-height: 1.8; color: #374151; }
+        .nav-link.active {
+            background-color: #e0e7ff;
+            color: #3730a3;
+            font-weight: 700;
+        }
+        .accordion-header {
+             border-bottom: 1px solid #e5e7eb;
+        }
     </style>
 </head>
 <body class="antialiased">
     <div class="relative min-h-screen md:flex">
         <!-- Mobile Menu Button -->
-        <div class="md:hidden flex justify-between items-center p-4 bg-white shadow-md">
-            <h1 class="text-xl font-bold text-[#3d405b]">Revision Guide</h1>
+        <div class="md:hidden flex justify-between items-center p-4 bg-white shadow-md sticky top-0 z-20">
+            <h1 class="text-xl font-bold text-gray-800">Revision Guide</h1>
             <button id="mobile-menu-button" class="text-gray-800">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
             </button>
         </div>
 
         <!-- Sidebar -->
-        <aside id="sidebar" class="bg-white text-gray-800 w-64 space-y-6 py-7 px-2 absolute inset-y-0 left-0 transform -translate-x-full md:relative md:translate-x-0 transition duration-200 ease-in-out shadow-lg z-20">
-            <a href="#" class="text-[#3d405b] flex items-center space-x-2 px-4">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-[#8d99ae]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v11.494m-9-5.747h18"/></svg>
-                <span class="text-2xl font-extrabold">Revision Guide</span>
+        <aside id="sidebar" class="bg-white text-gray-800 w-72 space-y-6 py-7 px-4 absolute inset-y-0 left-0 transform -translate-x-full md:relative md:translate-x-0 transition duration-300 ease-in-out shadow-xl z-30 border-r border-gray-200">
+            <a href="#dashboard" class="nav-link text-gray-900 flex items-center space-x-3 px-4">
+                <svg class="h-10 w-10 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v11.494m-9-5.747h18"/></svg>
+                <span class="text-2xl font-black">Revision Guide</span>
             </a>
-            <nav id="main-nav">
-                <a href="#dashboard" class="nav-link block py-2.5 px-4 rounded transition duration-200 bg-blue-100 text-blue-800 font-bold">Dashboard</a>
-                
+            <nav id="main-nav" class="mt-10">
+                <a href="#dashboard" class="nav-link text-lg block py-3 px-4 rounded-lg transition duration-200 hover:bg-blue-50 active">Dashboard</a>
                 <div>
-                    <button class="nav-accordion-header w-full flex justify-between items-center py-2.5 px-4 rounded transition duration-200 hover:bg-gray-200">
-                        <span class="font-bold">Professional Competencies</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-transform duration-300 transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
-                    </button>
-                    <div class="nav-accordion-content pl-4" style="display: none;">
-                        <a href="#planning" class="nav-link block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-100">Planning</a>
-                        <a href="#management" class="nav-link block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-100">Management</a>
-                        <a href="#assessment" class="nav-link block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-100">Assessment</a>
-                    </div>
+                    <button class="nav-accordion-header text-lg w-full flex justify-between items-center py-3 px-4 rounded-lg transition duration-200 hover:bg-blue-50"><span class="font-bold">Professional Competencies</span><svg class="h-5 w-5 transition-transform duration-300 transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></button>
+                    <div class="nav-accordion-content pl-4 mt-2 space-y-1"><a href="#planning" class="nav-link block py-2 px-4 rounded-lg transition duration-200 hover:bg-blue-50 text-base">Planning</a><a href="#management" class="nav-link block py-2 px-4 rounded-lg transition duration-200 hover:bg-blue-50 text-base">Management</a><a href="#assessment" class="nav-link block py-2 px-4 rounded-lg transition duration-200 hover:bg-blue-50 text-base">Assessment</a></div>
                 </div>
-
                 <div>
-                    <button class="nav-accordion-header w-full flex justify-between items-center py-2.5 px-4 rounded transition duration-200 hover:bg-gray-200">
-                        <span class="font-bold">English Specialization</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-transform duration-300 transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
-                    </button>
-                    <div class="nav-accordion-content pl-4" style="display: none;">
-                        <a href="#grammar" class="nav-link block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-100">Grammar</a>
-                        <a href="#" class="nav-link text-gray-400 block py-2.5 px-4 rounded">Functions (Soon)</a>
-                        <a href="#" class="nav-link text-gray-400 block py-2.5 px-4 rounded">Communication (Soon)</a>
-                        <a href="#" class="nav-link text-gray-400 block py-2.5 px-4 rounded">Writing (Soon)</a>
-                    </div>
+                    <button class="nav-accordion-header text-lg w-full flex justify-between items-center py-3 px-4 rounded-lg transition duration-200 hover:bg-blue-50"><span class="font-bold">English Specialization</span><svg class="h-5 w-5 transition-transform duration-300 transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></button>
+                    <div class="nav-accordion-content pl-4 mt-2 space-y-1"><a href="#grammar" class="nav-link block py-2 px-4 rounded-lg transition duration-200 hover:bg-blue-50 text-base">Grammar</a><a href="#functions" class="nav-link block py-2 px-4 rounded-lg transition duration-200 hover:bg-blue-50 text-base">Functions</a><a href="#communication" class="nav-link block py-2 px-4 rounded-lg transition duration-200 hover:bg-blue-50 text-base">Communication</a><a href="#writing" class="nav-link block py-2 px-4 rounded-lg transition duration-200 hover:bg-blue-50 text-base">Writing</a></div>
                 </div>
-                 <div>
-                    <button class="nav-accordion-header w-full flex justify-between items-center py-2.5 px-4 rounded transition duration-200 hover:bg-gray-200">
-                        <span class="font-bold font-cairo text-right w-full">علوم التربية</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-transform duration-300 transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
-                    </button>
-                    <div class="nav-accordion-content pr-4 text-right" style="display: none;">
-                        <a href="#school_life" class="nav-link block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-100 font-cairo">الحياة المدرسية</a>
-                        <a href="#professional_ethics" class="nav-link block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-100 font-cairo">أخلاقيات المهنة</a>
-                    </div>
+                <div>
+                    <button class="nav-accordion-header text-lg w-full flex justify-between items-center py-3 px-4 rounded-lg transition duration-200 hover:bg-blue-50"><span class="font-cairo font-bold text-right w-full">علوم التربية</span><svg class="h-5 w-5 transition-transform duration-300 transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></button>
+                    <div class="nav-accordion-content pr-4 mt-2 space-y-1 text-right"><a href="#school_life" class="nav-link block py-2 px-4 rounded-lg transition duration-200 hover:bg-blue-50 font-cairo text-base">الحياة المدرسية</a><a href="#professional_ethics" class="nav-link block py-2 px-4 rounded-lg transition duration-200 hover:bg-blue-50 font-cairo text-base">أخلاقيات المهنة</a></div>
                 </div>
             </nav>
         </aside>
 
         <!-- Main content -->
-        <main class="flex-1 p-4 md:p-10 overflow-y-auto">
-
-            <!-- Dashboard Section -->
-            <section id="dashboard" class="main-content-section active">
-                <h1 class="text-4xl font-black text-[#3d405b] mb-2">Comprehensive Overview of the Qualification Exam</h1>
-                <p class="text-lg text-gray-600 mb-8">A summary dashboard of the main exam components and their relative weights.</p>
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <div class="bg-white p-6 rounded-xl shadow-lg">
-                        <h2 class="text-2xl font-bold text-center mb-4 text-[#3d405b]">Professional Competencies Breakdown</h2>
-                        <p class="text-center text-gray-500 mb-6">This chart shows the weight of each main field in the professional skills test. Planning, Management, and Assessment are the core pillars.</p>
-                        <div class="chart-container"><canvas id="professionalCompetenciesChart"></canvas></div>
-                    </div>
-                    <div class="bg-white p-6 rounded-xl shadow-lg">
-                        <h2 class="text-2xl font-bold text-center mb-4 text-[#3d405b]">English Specialization Breakdown</h2>
-                        <p class="text-center text-gray-500 mb-6">An analysis of the components for the English language test. Grammar, Writing, Communication, and Functions are the four key areas.</p>
-                        <div class="chart-container"><canvas id="specializationChart"></canvas></div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- English Sections -->
-            <section id="planning" class="main-content-section">
-                <h1 class="text-4xl font-black text-[#3d405b] mb-8">Domain 1: Planning</h1>
-                 <div class="bg-white p-6 rounded-xl shadow-lg mb-8">
-                    <h2 class="text-2xl font-bold text-center mb-4 text-[#3d405b]">Planning Sub-fields Breakdown (33%)</h2>
-                    <p class="text-center text-gray-500 mb-6">This chart shows the high importance given to designing lesson plans (15%), reflecting this skill's practical value in the exam.</p>
-                    <div class="small-chart-container"><canvas id="planningChart"></canvas></div>
-                </div>
-                 <div class="bg-white p-6 rounded-xl shadow-lg">
-                    <h2 class="text-2xl font-bold mb-4 text-[#3d405b]">Teaching Methodologies & Frameworks (5%)</h2>
-                    <p class="text-gray-600 mb-6">Explore different teaching methodologies by clicking each title. Every framework offers a unique lesson structure and reflects our evolving understanding of language acquisition.</p>
-                    <div id="methodologies-accordion" class="space-y-2"></div>
-                </div>
-            </section>
-            <section id="management" class="main-content-section">
-                 <h1 class="text-4xl font-black text-[#3d405b] mb-8">Domain 2: Management</h1>
-                 <div class="bg-white p-6 rounded-xl shadow-lg mb-8">
-                    <h2 class="text-2xl font-bold text-center mb-4 text-[#3d405b]">Management Sub-fields Breakdown (33%)</h2>
-                     <p class="text-center text-gray-500 mb-6">This domain focuses on best practices and managing the learning process, emphasizing the importance of a dynamic and interactive classroom environment.</p>
-                    <div class="small-chart-container"><canvas id="managementChart"></canvas></div>
-                </div>
-            </section>
-            <section id="assessment" class="main-content-section">
-                <h1 class="text-4xl font-black text-[#3d405b] mb-8">Domain 3: Assessment</h1>
-                 <div class="bg-white p-6 rounded-xl shadow-lg mb-8">
-                    <h2 class="text-2xl font-bold text-center mb-4 text-[#3d405b]">Assessment Sub-fields Breakdown (34%)</h2>
-                    <p class="text-center text-gray-500 mb-6">Assessment mechanisms, interpretation, and investment of results are given roughly equal importance, indicating that assessment is viewed as an integrated process from design to application and development.</p>
-                    <div class="small-chart-container"><canvas id="assessmentChart"></canvas></div>
-                </div>
-            </section>
-            <section id="grammar" class="main-content-section">
-                <h1 class="text-4xl font-black text-[#3d405b] mb-8">Specialization: Grammar</h1>
-                 <div class="bg-white p-6 rounded-xl shadow-lg mb-8">
-                    <h2 class="text-2xl font-bold text-center mb-4 text-[#3d405b]">Grammar Sub-fields Breakdown (26%)</h2>
-                    <p class="text-center text-gray-500 mb-6">Mixed tenses and sentence transformation hold the highest weight, requiring a deep understanding of sentence structures and their interactions.</p>
-                     <div class="small-chart-container"><canvas id="grammarChart"></canvas></div>
-                </div>
-                 <div class="bg-white p-6 rounded-xl shadow-lg">
-                    <h2 class="text-2xl font-bold mb-4 text-[#3d405b]">Sentence Transformations (8%)</h2>
-                    <p class="text-gray-600 mb-6">Explore the different types of sentence transformations. This skill is essential for demonstrating flexibility and control over linguistic structures.</p>
-                    <div id="transformations-accordion" class="space-y-2"></div>
-                 </div>
-            </section>
+        <main class="flex-1 p-6 md:p-12 overflow-y-auto bg-gray-50">
+            <section id="dashboard" class="main-content-section active"><h1 class="text-gray-800 mb-4">Welcome to the Interactive Revision Guide</h1><p class="text-gray-600 mb-12">This guide is designed to help you prepare for the Teacher Qualification Exam. Use the sidebar navigation to explore the different sections. Each topic is broken down into key concepts, principles, and practical strategies based on the official exam frameworks.</p><div class="card"><h2 class="text-blue-700 mb-4">How to Use This Guide</h2><p>Navigate through the competencies and subjects using the menu on the left. Focus on understanding the core principles and consider how you would apply them in a real classroom. The content is structured to align with the exam's focus areas, providing a comprehensive tool for your revision.</p></div></section>
+            
+            <section id="planning" class="main-content-section"><h1 class="mb-8">Domain 1: Planning</h1><div class="card mb-10"><h2 class="mb-4">Teaching Methodologies & Frameworks</h2><p class="text-gray-600 mb-6">Explore different teaching methodologies by clicking each title. Every framework offers a unique lesson structure and reflects our evolving understanding of language acquisition.</p><div id="methodologies-accordion" class="space-y-3"></div></div><div class="card"><h2 class="mb-4">Writing SMART Lesson Objectives</h2><p class="text-gray-600 mb-6">The SMART framework ensures objectives are robust and actionable, guiding all lesson planning decisions.</p><div id="smart-objectives-accordion" class="space-y-3"></div></div></section>
+            
+            <section id="management" class="main-content-section"><h1 class="mb-8">Domain 2: Management</h1><div class="card mb-10"><h2 class="mb-4">Best Practices in Classroom Dynamics</h2><p class="text-gray-600 mb-6">This section covers the practical, day-to-day strategies that create a productive and engaging learning atmosphere.</p><div id="best-practices-accordion" class="space-y-3"></div></div><div class="card"><h2 class="mb-4">Managing Diverse Scenarios</h2><p class="text-gray-600 mb-6">Classrooms are diverse. These strategies address how to manage different learning styles, interaction patterns, and challenging class sizes.</p><div id="diverse-scenarios-accordion" class="space-y-3"></div></div></section>
+            
+            <section id="assessment" class="main-content-section"><h1 class="mb-8">Domain 3: Assessment</h1><div class="card mb-10"><h2 class="mb-4">Core Concepts in Educational Assessment</h2><p class="text-gray-600 mb-6">Assessment is the systematic process of gathering, reviewing, and using information about student learning to improve teaching.</p><div id="assessment-concepts-accordion" class="space-y-3"></div></div><div class="card"><h2 class="mb-4">Designing Remedial Support</h2><p class="text-gray-600 mb-6">The true value of assessment is realized when its results are actively used to improve learning. Remedial work should be a targeted, data-driven response to student needs.</p><div id="remedial-support-accordion" class="space-y-3"></div></div></section>
+            
+            <section id="grammar" class="main-content-section"><h1 class="mb-8">Specialization: Grammar</h1><div class="card mb-10"><h2 class="mb-4">Sentence Transformations</h2><p class="text-gray-600 mb-6">Explore the different types of sentence transformations. This skill is essential for demonstrating flexibility and control over linguistic structures.</p><div id="transformations-accordion" class="space-y-3"></div></div><div class="card"><h2 class="mb-4">Understanding Key Grammar Points</h2><p class="text-gray-600 mb-6">Mastery of these concepts is crucial for building accurate and sophisticated sentences.</p><div id="key-grammar-accordion" class="space-y-3"></div></div></section>
+            
+            <section id="functions" class="main-content-section"><h1 class="mb-8">Specialization: Functions</h1><div class="card"><h2 class="mb-4">Communicative Functions</h2><p class="text-gray-600 mb-6">This area focuses on using language to achieve specific communicative goals in social situations.</p><div id="functions-accordion" class="space-y-3"></div></div></section>
+            
+            <section id="communication" class="main-content-section"><h1 class="mb-8">Specialization: Communication</h1><div class="card"><h2 class="mb-4">Principles of Communication</h2><p class="text-gray-600 mb-6">This section covers the types, barriers, and potential distortions of communication within a classroom context.</p><div id="communication-accordion" class="space-y-3"></div></div></section>
+            
+            <section id="writing" class="main-content-section"><h1 class="mb-8">Specialization: Writing</h1><div class="card"><h2 class="mb-4">Types of Writing</h2><p class="text-gray-600 mb-6">This area focuses on the ability to produce clear, organized, and coherent written texts for different purposes.</p><div id="writing-accordion" class="space-y-3"></div></div></section>
 
             <!-- Arabic Sections -->
-            <section id="school_life" class="main-content-section font-cairo text-right" dir="rtl">
-                <h1 class="text-4xl font-black text-[#3d405b] mb-8">محور الحياة المدرسية</h1>
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <div class="bg-white p-6 rounded-xl shadow-lg">
-                        <h2 class="text-2xl font-bold text-center mb-4 text-[#3d405b]">مكونات الحياة المدرسية (30%)</h2>
-                        <p class="text-center text-gray-500 mb-6">تتوزع الأهمية بالتساوي بين مشروع المؤسسة كإطار للتخطيط، وآليات تفعيل الحياة المدرسية كوسائل للتنفيذ.</p>
-                        <div class="small-chart-container"><canvas id="schoolLifeChart"></canvas></div>
-                    </div>
-                    <div class="bg-white p-6 rounded-xl shadow-lg flex flex-col justify-center">
-                         <h2 class="text-2xl font-bold text-center mb-4 text-[#3d405b]">ما هي الحياة المدرسية؟</h2>
-                         <p class="text-lg text-gray-600 leading-relaxed">هي المناخ العام داخل المؤسسة التعليمية وكل ما يتعلق بالأنشطة المندمجة التي تهدف إلى تنمية شخصية المتعلم في جميع أبعادها: المعرفية، الوجدانية، المهارية، والسلوكية. إنها تسعى لجعل المدرسة فضاءً للحياة والتعلم الممتع والجاذب.</p>
-                    </div>
-                </div>
-                 <div class="bg-white p-6 rounded-xl shadow-lg mt-8">
-                    <h2 class="text-2xl font-bold mb-4 text-[#3d405b] text-center">آليات تفعيل الحياة المدرسية</h2>
-                     <p class="text-gray-600 mb-6 text-center">هي الأدوات والوسائل العملية التي تترجم أهداف الحياة المدرسية إلى واقع ملموس، وتخلق دينامية وحيوية داخل فضاءات المؤسسة.</p>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-                        <div class="bg-gray-100 p-4 rounded-lg">🎨 الأندية التربوية</div>
-                        <div class="bg-gray-100 p-4 rounded-lg">📚 المكتبة المدرسية</div>
-                        <div class="bg-gray-100 p-4 rounded-lg">🚌 الأنشطة الموازية</div>
-                        <div class="bg-gray-100 p-4 rounded-lg">📰 المجلة المدرسية</div>
-                    </div>
-                 </div>
-            </section>
-            <section id="professional_ethics" class="main-content-section font-cairo text-right" dir="rtl">
-                <h1 class="text-4xl font-black text-[#3d405b] mb-8">محور أخلاقيات المهنة</h1>
-                <div class="bg-white p-6 rounded-xl shadow-lg">
-                    <h2 class="text-2xl font-bold mb-4 text-[#3d405b]">التزامات المدرس وعلاقاته المهنية</h2>
-                    <p class="text-gray-600 mb-6">تؤطر الممارسة المهنية للمدرس بمجموعة من الالتزامات الأخلاقية والقانونية التي تضمن سير العملية التعليمية وتحفظ حقوق جميع الأطراف.</p>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div>
-                            <h3 class="text-xl font-bold text-[#e07a5f] mb-3">علاقة المدرس بالمتعلمين</h3>
-                            <ul class="list-disc list-inside space-y-2">
-                                <li>الالتزام بالإنصاف وتكافؤ الفرص بين جميع المتعلمين.</li>
-                                <li>حماية المتعلمين من كل أشكال العنف والتمييز.</li>
-                                <li>ترسيخ قيم المواطنة وحقوق الإنسان والسلوك المدني.</li>
-                                <li>اعتبار المتعلم محور العملية التربوية وشريكًا فيها.</li>
-                            </ul>
-                        </div>
-                        <div>
-                            <h3 class="text-xl font-bold text-[#81b29a] mb-3">علاقة المدرس بزملائه</h3>
-                            <ul class="list-disc list-inside space-y-2">
-                                <li>العمل بروح الفريق والتعاون.</li>
-                                <li>تبادل الخبرات والممارسات الجيدة.</li>
-                                <li>احترام آراء الزملاء والالتزام بالاحترام المتبادل.</li>
-                            </ul>
-                        </div>
-                        <div>
-                            <h3 class="text-xl font-bold text-[#8d99ae] mb-3">علاقة المدرس بالإدارة</h3>
-                            <ul class="list-disc list-inside space-y-2">
-                                <li>المساهمة في إشعاع المؤسسة وتجسيد مشروعها.</li>
-                                <li>المشاركة الفاعلة في مجالس المؤسسة.</li>
-                                <li>الالتزام بتنفيذ المهام الموكلة إليه.</li>
-                            </ul>
-                        </div>
-                        <div>
-                            <h3 class="text-xl font-bold text-[#f2cc8f] mb-3">علاقة المدرس بأولياء الأمور</h3>
-                            <ul class="list-disc list-inside space-y-2">
-                                <li>إقامة علاقة تواصل وتعاون بناءة.</li>
-                                <li>إطلاعهم على مستوى أبنائهم وسبل دعمهم.</li>
-                                <li>احترام دورهم كشركاء في العملية التربوية.</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </section>
+            <section id="school_life" class="main-content-section font-cairo text-right" dir="rtl"><h1 class="mb-8">محور الحياة المدرسية</h1><div class="card mb-10"><h2 class="mb-4">ما هي الحياة المدرسية؟</h2><p class="text-gray-600 leading-relaxed">هي المناخ العام داخل المؤسسة التعليمية وكل ما يتعلق بالأنشطة المندمجة التي تهدف إلى تنمية شخصية المتعلم في جميع أبعادها: المعرفية، الوجدانية، المهارية، والسلوكية. إنها تسعى لجعل المدرسة فضاءً للحياة والتعلم الممتع والجاذب.</p></div><div class="card"><h2 class="mb-4 text-center">آليات تفعيل الحياة المدرسية</h2><p class="text-gray-600 mb-6 text-center">هي الأدوات والوسائل العملية التي تترجم أهداف الحياة المدرسية إلى واقع ملموس، وتخلق دينامية وحيوية داخل فضاءات المؤسسة.</p><div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center text-lg"><div class="bg-blue-50 p-4 rounded-lg">🎨 الأندية التربوية</div><div class="bg-blue-50 p-4 rounded-lg">📚 المكتبة المدرسية</div><div class="bg-blue-50 p-4 rounded-lg">🚌 الأنشطة الموازية</div><div class="bg-blue-50 p-4 rounded-lg">📰 المجلة المدرسية</div><div class="bg-blue-50 p-4 rounded-lg">🎤 الإذاعة المدرسية</div><div class="bg-blue-50 p-4 rounded-lg">👥 مشروع القسم</div><div class="bg-blue-50 p-4 rounded-lg">🎉 الاحتفالات والأعياد</div><div class="bg-blue-50 p-4 rounded-lg">🗣️ مجالس المؤسسة</div></div></div></section>
+            
+            <section id="professional_ethics" class="main-content-section font-cairo text-right" dir="rtl"><h1 class="mb-8">محور أخلاقيات المهنة</h1><div class="card"><h2 class="mb-4">التزامات المدرس وعلاقاته المهنية</h2><p class="text-gray-600 mb-6">تؤطر الممارسة المهنية للمدرس بمجموعة من الالتزامات الأخلاقية والقانونية التي تضمن سير العملية التعليمية وتحفظ حقوق جميع الأطراف.</p><div class="grid grid-cols-1 md:grid-cols-2 gap-10"><div class="border-r-4 border-red-300 pr-4"><h3 class="text-red-700 mb-3">علاقة المدرس بالمتعلمين</h3><ul class="list-disc list-inside space-y-2"><li>الالتزام بالإنصاف وتكافؤ الفرص بين جميع المتعلمين.</li><li>حماية المتعلمين من كل أشكال العنف والتمييز.</li><li>ترسيخ قيم المواطنة وحقوق الإنسان والسلوك المدني.</li><li>اعتبار المتعلم محور العملية التربوية وشريكًا فيها.</li></ul></div><div class="border-r-4 border-green-300 pr-4"><h3 class="text-green-700 mb-3">علاقة المدرس بزملائه</h3><ul class="list-disc list-inside space-y-2"><li>العمل بروح الفريق والتعاون.</li><li>تبادل الخبرات والممارسات الجيدة.</li><li>احترام آراء الزملاء والالتزام بالاحترام المتبادل.</li></ul></div><div class="border-r-4 border-blue-300 pr-4"><h3 class="text-blue-700 mb-3">علاقة المدرس بالإدارة</h3><ul class="list-disc list-inside space-y-2"><li>المساهمة في إشعاع المؤسسة وتجسيد مشروعها.</li><li>المشاركة الفاعلة في مجالس المؤسسة.</li><li>الالتزام بتنفيذ المهام الموكلة إليه.</li></ul></div><div class="border-r-4 border-yellow-300 pr-4"><h3 class="text-yellow-700 mb-3">علاقة المدرس بأولياء الأمور</h3><ul class="list-disc list-inside space-y-2"><li>إقامة علاقة تواصل وتعاون بناءة.</li><li>إطلاعهم على مستوى أبنائهم وسبل دعمهم.</li><li>احترام دورهم كشركاء في العملية التربوية.</li></ul></div></div></div></section>
         </main>
     </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const data = {
-        professionalCompetencies: { labels: ['Planning', 'Management', 'Assessment'], weights: [33, 33, 34] },
-        specialization: { labels: ['Grammar', 'Functions', 'Communication', 'Writing'], weights: [26, 23, 24, 27] },
-        planning: { labels: ['Designing Lesson Plans', 'Evaluating Lesson Plans', 'Planning Foundations', 'Teaching Methodologies'], weights: [15, 8, 5, 5] },
-        management: { labels: ['Best Practices', 'Managing Learning', 'Discipline Strategies', 'Management Basics'], weights: [10, 10, 8, 5] },
-        assessment: { labels: ['Assessment Mechanisms', 'Interpreting Results', 'Investing Results', 'Fundamental Notions'], weights: [10, 10, 8, 6] },
-        grammar: { labels: ['Mixed Tenses', 'Sentence Transformation', 'Linking Words', 'Prepositions'], weights: [8, 8, 6, 4] },
-        schoolLife: { labels: ['مشروع المؤسسة', 'آليات تفعيل الحياة المدرسية'], weights: [50, 50] },
-        methodologies: [
-            { title: 'Presentation, Practice, Production (PPP)', content: 'A traditional, structured model for teaching discrete language items. It starts with the teacher presenting the material, followed by controlled student practice, and ends with free production. It is logical but can be rigid.' },
-            { title: 'Engage, Study, Activate (ESA)', content: 'A flexible methodology focusing on student engagement first. After engaging students, the focus shifts to the language itself (Study), and then its use in a communicative context (Activate). The stages can be reordered.' },
-            { title: 'Encounter, Clarify, Remember, Internalize, Fluency (ECRIF)', content: 'A framework focusing on the student\'s cognitive process. Stages include: encountering new material, clarifying its meaning, remembering it, internalizing it into long-term memory, and finally using it with fluency.' },
-        ],
-        transformations: [
-            { title: 'Reported Speech', content: 'Reporting what someone else said without using their exact words, which requires changes in tenses, pronouns, and time/place adverbs.' },
-            { title: 'Passive Voice', content: 'A sentence structure where the focus is on the action or the object of the action rather than the subject. It is formed using (be + past participle).' },
-            { title: 'Relative Clauses', content: 'Clauses introduced by relative pronouns (who, which, that, etc.) to provide more information about a noun.' },
-            { title: 'Wishes', content: 'Using "I wish" to express a desire for reality to be different, often using a past tense to refer to an impossible present or past situation.' },
-            { title: 'Conditionals', content: 'Sentences expressing a condition and its likely result (e.g., if...then). Different types express varying degrees of reality or probability.' },
-        ]
+        methodologies: [ { title: 'Presentation, Practice, Production (PPP)', content: 'A traditional, structured model for teaching discrete language items. It starts with the teacher presenting the material, followed by controlled student practice, and ends with free production. It is logical but can be rigid.' }, { title: 'Engage, Study, Activate (ESA)', content: 'A flexible methodology focusing on student engagement first. After engaging students, the focus shifts to the language itself (Study), and then its use in a communicative context (Activate). The stages can be reordered.' }, { title: 'Encounter, Clarify, Remember, Internalize, Fluency (ECRIF)', content: 'A framework focusing on the student\'s cognitive process. Stages include: encountering new material, clarifying its meaning, remembering it, internalizing it into long-term memory, and finally using it with fluency.' }, { title: 'Sheltered Instruction Observation Protocol (SIOP)', content: 'A research-based framework for planning and delivering instruction in content areas (like science or math) to English Language Learners (ELLs) in a way that makes the content comprehensible while promoting language development.' } ],
+        smartObjectives: [ { title: 'S - Specific', content: 'The objective should be well-defined, clear, and unambiguous. It should state exactly what the learner will be able to do.' }, { title: 'M - Measurable', content: 'The objective should specify how achievement will be demonstrated and assessed. There should be clear criteria for success.' }, { title: 'A - Achievable', content: 'The objective should be realistic and attainable for the students within the given timeframe and with the available resources. It should be challenging yet within reach.' }, { title: 'R - Relevant', content: 'The objective should be meaningful to the learners and align with their broader educational goals, needs, and the overall curriculum.' }, { title: 'T - Time-bound', content: 'The objective should have a defined timeframe for completion, usually by the end of the lesson or a series of lessons.' } ],
+        bestPractices: [ { title: 'Giving Clear Instructions', content: 'Plan and prepare instructions. Use simplified language and break tasks into steps. Demonstrate/model the activity and always check for understanding (CCQs).' }, { title: 'Eliciting Techniques', content: 'Draw out information from students rather than providing it directly. Use visuals, actions, descriptions, and questions to engage students and leverage their prior knowledge.' }, { title: 'Error Correction & Feedback', content: 'Balance correction with encouragement. Differentiate between accuracy and fluency activities. Use techniques like self-correction, peer correction, and delayed correction to provide feedback without disrupting flow.' }, { title: 'Managing Time, Space, and Board', content: 'Use timers to keep activities on track. Arrange the classroom to support interaction. Keep the board organized, visible, and use it as a dynamic tool for co-constructing knowledge.' } ],
+        diverseScenarios: [ { title: 'Learning Styles & Preferences', content: 'Cater to Visual, Auditory, Read/Write, and Kinesthetic learners by using a variety of activities and materials. In the Moroccan context, visual and kinesthetic activities are often preferred.' }, { title: 'Pair & Group Work', content: 'Use different interaction patterns to increase student talking time and promote collaboration. Give clear instructions, assign roles, set time limits, and monitor progress.' }, { title: 'Managing Large & Multilevel Classes', content: 'Employ strategies like flexible grouping, differentiated tasks, and peer tutoring to address the challenges of classes with many students or varying proficiency levels.' } ],
+        assessmentConcepts: [ { title: 'Assessment vs. Testing vs. Evaluation', content: '<b>Testing</b> is a specific tool or method to measure learning (e.g., a quiz). <b>Assessment</b> is a broader process of gathering data to understand learning. <b>Evaluation</b> is the process of making judgments about the quality of learning based on assessment data.' }, { title: 'Formative vs. Summative Assessment', content: '<b>Formative Assessment (Assessment FOR Learning):</b> Occurs during instruction to monitor progress and provide feedback (e.g., observation, Q&A, exit tickets). <b>Summative Assessment (Assessment OF Learning):</b> Occurs at the end of a unit or term to evaluate mastery (e.g., final exams, projects).' }, { title: 'Norm-Referenced vs. Criterion-Referenced Tests', content: '<b>Norm-Referenced:</b> Compares a student\'s performance to that of a larger group (the "norm"). <b>Criterion-Referenced:</b> Compares a student\'s performance to a pre-defined set of criteria or standards.' }, { title: 'Key Qualities of a Good Test', content: '<b>Validity:</b> Does it measure what it\'s supposed to measure? <b>Reliability:</b> Does it produce consistent results? <b>Practicality:</b> Is it easy to administer and score?' } ],
+        remedialSupport: [ { title: 'Step 1: Administer Assessment', content: 'Conduct a formative or summative assessment to identify learning gaps.' }, { title: 'Step 2: Error Analysis', content: 'Carefully analyze students\' errors to understand the root causes. Are the errors systematic? Are they related to misunderstanding or carelessness?' }, { title: 'Step 3: Grouping Students', content: 'Group students based on their specific needs and the types of errors they made. This allows for more targeted support.' }, { title: 'Step 4: Design & Implement Remedial Activities', content: 'Create targeted activities, worksheets, or re-teaching sessions that directly address the identified weaknesses.' }, { title: 'Step 5: Re-assess', content: 'Conduct a follow-up assessment to determine if the remedial support was effective and if students have mastered the concept.' } ],
+        keyGrammar: [ { title: 'Mixed Tenses', content: 'This involves using different tenses together in a sentence or text to show the relationship between various actions or states in time. For example, using the Past Perfect with the Past Simple to show one action happened before another in the past: "The train <b>had left</b> when I <b>arrived</b>."' }, { title: 'Linking Words / Conjunctions', content: 'Words or phrases used to connect ideas, sentences, or clauses. They show relationships like: <ul><li class="my-2"><b>Concession (e.g., although, even though):</b> "<u>Although</u> it was raining, we went for a walk."</li><li class="my-2"><b>Cause and Effect (e.g., because, so, as a result):</b> "He studied hard, <u>so</u> he passed the exam."</li><li class="my-2"><b>Purpose (e.g., to, in order to, so that):</b> "She saved money <u>in order to</u> buy a new car."</li></ul>' }, { title: 'Prepositions', content: 'Words that show the relationship between a noun or pronoun and other words in a sentence, often indicating time, place, or movement. Examples: <b>in</b> the morning, <b>at</b> the station, <b>on</b> the table, <b>after</b> the movie.' } ],
+        transformations: [ { title: 'Reported Speech', content: 'Reporting what someone else said without using their exact words, which requires changes in tenses, pronouns, and time/place adverbs.' }, { title: 'Passive Voice', content: 'A sentence structure where the focus is on the action or the object of the action rather than the subject. It is formed using (be + past participle).' }, { title: 'Relative Clauses', content: 'Clauses introduced by relative pronouns (who, which, that, etc.) to provide more information about a noun.' }, { title: 'Wishes', content: 'Using "I wish" to express a desire for reality to be different, often using a past tense to refer to an impossible present or past situation.' }, { title: 'Conditionals', content: 'Sentences expressing a condition and its likely result (e.g., if...then). Different types express varying degrees of reality or probability.' } ],
+        functions: [ { title: 'Making & Responding to Complaints', content: 'Involves expressing dissatisfaction (e.g., "I\'m afraid I have a complaint.") and responding appropriately by either accepting the complaint and apologizing ("I\'m so sorry about that."), or rejecting it politely ("I\'m afraid there\'s nothing we can do.").' }, { title: 'Asking for & Giving Advice', content: 'Focuses on the language needed to request guidance (e.g., "What should I do?") and to provide suggestions or recommendations (e.g., "You should...", "If I were you, I would...").' }, { title: 'Making Suggestions', content: 'Involves proposing a course of action to one or more people (e.g., "Let\'s go to the cinema.", "How about having pizza?"). Responses can be accepting ("That\'s a great idea!"), rejecting ("I\'d rather not."), or modifying the suggestion.' }, { title: 'Making & Responding to Requests', content: 'Covers the use of different levels of politeness when asking someone to do something, from informal (Can/Will you...?) to more polite forms (Could/Would you...?, Would you mind...?).' } ],
+        communication: [ { title: 'Types of Communication', content: 'Includes verbal and non-verbal communication (body language, eye contact). In the classroom, this can be intrapersonal (self-talk), interpersonal (between two people), or intergroup (between groups).' }, { title: 'Barriers to Effective Communication', content: 'Obstacles that can prevent clear communication. These include having a judgmental attitude, a "know-it-all" attitude, or an unconcerned/indifferent attitude, all of which block genuine dialogue.' }, { title: 'Distortions in Communication', content: 'Factors that can alter the intended meaning of a message. These can be linguistic (ambiguous words), psychological (preconceived ideas), cultural (different norms), or physical (noise, poor visibility).' } ],
+        writing: [ { title: 'Descriptive Writing', content: 'The primary purpose is to describe a person, place, or thing in such detail that a vivid picture is formed in the reader\'s mind. It relies on sensory details to appeal to the five senses.' }, { title: 'Narrative Writing', content: 'Focuses on telling a story. It involves a sequence of events (plot), characters, a setting, and often includes dialogue. Narratives can be real or imagined.' }, { title: 'Formal vs. Informal Emails', content: 'Formal emails are used for business or official purposes. They feature a clear structure, polite language, and a professional tone. Informal emails are for personal communication with friends or family and use casual language and a friendly tone.' } ]
     };
-    const chartColors = ['#8d99ae', '#e07a5f', '#3d405b', '#81b29a', '#f2cc8f'];
-
-    const createChart = (ctx, type, labels, data, options = {}) => {
-        if (!ctx) return;
-        const defaultOptions = {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { position: type === 'doughnut' || type === 'pie' ? 'bottom' : 'none', labels: {font: {family: 'Poppins, Cairo', size: 12}}},
-                tooltip: {
-                    bodyFont: { family: 'Poppins, Cairo' }, titleFont: { family: 'Poppins, Cairo' },
-                    callbacks: { label: (context) => `${context.label}: ${context.raw}%` }
-                }
-            },
-            scales: type === 'bar' ? { y: { ticks: { font: { family: 'Poppins, Cairo' }}}, x: { ticks: { font: { family: 'Poppins, Cairo' }}}} : {}
-        };
-        new Chart(ctx, { type, data: { labels, datasets: [{ label: 'Weight', data, backgroundColor: chartColors, borderColor: '#f8f7f4', borderWidth: 2 }] }, options: {...defaultOptions, ...options} });
-    };
-    
-    createChart(document.getElementById('professionalCompetenciesChart')?.getContext('2d'), 'doughnut', data.professionalCompetencies.labels, data.professionalCompetencies.weights);
-    createChart(document.getElementById('specializationChart')?.getContext('2d'), 'doughnut', data.specialization.labels, data.specialization.weights);
-    createChart(document.getElementById('planningChart')?.getContext('2d'), 'bar', data.planning.labels, data.planning.weights);
-    createChart(document.getElementById('managementChart')?.getContext('2d'), 'bar', data.management.labels, data.management.weights);
-    createChart(document.getElementById('assessmentChart')?.getContext('2d'), 'bar', data.assessment.labels, data.assessment.weights);
-    createChart(document.getElementById('grammarChart')?.getContext('2d'), 'bar', data.grammar.labels, data.grammar.weights);
-    createChart(document.getElementById('schoolLifeChart')?.getContext('2d'), 'pie', data.schoolLife.labels, data.schoolLife.weights);
 
     const createAccordion = (containerId, items) => {
         const container = document.getElementById(containerId);
         if (!container) return;
+        container.innerHTML = '';
         items.forEach(item => {
             const itemDiv = document.createElement('div');
-            itemDiv.className = 'border border-gray-200 rounded-lg';
+            itemDiv.className = 'border border-gray-200 rounded-lg overflow-hidden';
             const header = document.createElement('button');
-            header.className = 'accordion-header w-full p-4 text-left bg-gray-100 hover:bg-gray-200 focus:outline-none flex justify-between items-center transition';
-            header.innerHTML = `<span class="font-bold text-lg text-[#3d405b]">${item.title}</span><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 transform transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>`;
+            header.className = 'accordion-header w-full p-5 text-left bg-gray-50 hover:bg-gray-100 focus:outline-none flex justify-between items-center transition';
+            header.innerHTML = `<span class="font-bold text-lg text-gray-800">${item.title}</span><svg class="h-6 w-6 transform transition-transform duration-300 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>`;
             const content = document.createElement('div');
             content.className = 'accordion-content';
-            content.innerHTML = `<div class="p-4 text-gray-700 bg-white">${item.content}</div>`;
+            content.innerHTML = `<div class="p-5 text-gray-700 bg-white">${item.content}</div>`;
             itemDiv.append(header, content);
             container.appendChild(itemDiv);
             header.addEventListener('click', () => {
                 const isOpen = content.style.maxHeight;
-                container.querySelectorAll('.accordion-content').forEach(c => c.style.maxHeight = null);
-                container.querySelectorAll('.accordion-header svg').forEach(svg => svg.style.transform = 'rotate(0deg)');
-                if (!isOpen) {
+                // Simple toggle logic: if it's open, close it. If it's closed, open it.
+                if (content.style.maxHeight) {
+                    content.style.maxHeight = null;
+                    header.querySelector('svg').style.transform = 'rotate(0deg)';
+                } else {
+                    // Optional: Close others when one opens
+                    // container.querySelectorAll('.accordion-content').forEach(c => c.style.maxHeight = null);
+                    // container.querySelectorAll('.accordion-header svg').forEach(svg => svg.style.transform = 'rotate(0deg)');
                     content.style.maxHeight = content.scrollHeight + "px";
                     header.querySelector('svg').style.transform = 'rotate(180deg)';
                 }
@@ -318,8 +158,12 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     };
     
-    createAccordion('methodologies-accordion', data.methodologies);
-    createAccordion('transformations-accordion', data.transformations);
+    // Populate all accordions
+    for (const key in data) {
+        if (Array.isArray(data[key])) {
+            createAccordion(`${key}-accordion`, data[key]);
+        }
+    }
 
     const navLinks = document.querySelectorAll('.nav-link');
     const sections = document.querySelectorAll('.main-content-section');
@@ -328,8 +172,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const setActiveLink = (hash) => {
         navLinks.forEach(link => {
-            link.classList.remove('bg-blue-100', 'text-blue-800', 'font-bold');
-            if (link.getAttribute('href') === hash) link.classList.add('bg-blue-100', 'text-blue-800', 'font-bold');
+            link.classList.remove('active');
+            if (link.getAttribute('href') === hash) link.classList.add('active');
         });
     };
 
@@ -345,8 +189,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (link && link.getAttribute('href') !== '#') {
             e.preventDefault();
             const hash = link.getAttribute('href');
-            const sectionId = hash.substring(1);
-            showSection(sectionId);
+            showSection(hash.substring(1));
             setActiveLink(hash);
             if (window.innerWidth < 768) sidebar.classList.add('-translate-x-full');
         }
@@ -361,10 +204,22 @@ document.addEventListener('DOMContentLoaded', function () {
             svg.style.transform = isVisible ? 'rotate(0deg)' : 'rotate(180deg)';
         });
     });
-
+    
     mobileMenuButton.addEventListener('click', () => sidebar.classList.toggle('-translate-x-full'));
+
+    // Set initial active link and section based on URL hash or default to dashboard
+    const initialHash = window.location.hash || '#dashboard';
+    showSection(initialHash.substring(1));
+    setActiveLink(initialHash);
+
+    // Handle back/forward browser navigation
+    window.addEventListener('popstate', () => {
+        const hash = window.location.hash || '#dashboard';
+        showSection(hash.substring(1));
+        setActiveLink(hash);
+    });
+
 });
 </script>
 </body>
 </html>
-
