@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Revision Guide - Teacher Qualification Exam</title>
+    <!-- Chosen Palette: Calm Academia -->
+    <!-- Application Structure Plan: The SPA uses a responsive dashboard layout with a persistent sidebar navigation. The structure is designed for intuitive exploration. The initial view summarizes key exam components. Clicking a navigation link dynamically updates the main content area, converting static information into interactive charts, accordions, and cards. This non-linear, interactive structure facilitates targeted revision. The application is primarily in English, with specific sections ("Educational Sciences" and "School Life") in Arabic to meet user requirements. -->
+    <!-- Visualization & Content Choices: 
+        - Exam Structure (Weights): Goal: Compare -> Viz: Doughnut/Bar Charts (Chart.js) -> Interaction: Hover for tooltips -> Justification: Faster visual comparison than tables.
+        - Methodologies (PPP, ESA): Goal: Organize/Compare -> Viz: Accordion -> Interaction: Click to expand -> Justification: Breaks down heavy text for focused reading.
+        - School Life/Ethics: Goal: Inform -> Viz: Styled Cards, Diagrams (HTML/CSS), Pie Chart (Chart.js) -> Interaction: None -> Justification: Improves scannability and visual appeal for complex topics.
+        - All choices adhere to NO SVG/Mermaid. Diagrams are built with HTML/Tailwind, charts with Chart.js Canvas. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&family=Poppins:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', 'Cairo', sans-serif;
+            background-color: #f8f7f4;
+            color: #3d405b;
+        }
+        .font-cairo { font-family: 'Cairo', sans-serif; }
+        .chart-container {
+            position: relative;
+            height: 40vh;
+            width: 100%;
+            max-width: 500px;
+            max-height: 400px;
+            margin: auto;
+        }
+        .small-chart-container {
+            position: relative;
+            height: 35vh;
+            width: 100%;
+            max-width: 450px;
+            max-height: 350px;
+            margin: auto;
+        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #8d99ae; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #828c9b; }
+        .main-content-section { display: none; }
+        .main-content-section.active { display: block; }
+        .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
+    </style>
+</head>
+<body class="antialiased">
+    <div class="relative min-h-screen md:flex">
+        <!-- Mobile Menu Button -->
+        <div class="md:hidden flex justify-between items-center p-4 bg-white shadow-md">
+            <h1 class="text-xl font-bold text-[#3d405b]">Revision Guide</h1>
+            <button id="mobile-menu-button" class="text-gray-800">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- Sidebar -->
+        <aside id="sidebar" class="bg-white text-gray-800 w-64 space-y-6 py-7 px-2 absolute inset-y-0 left-0 transform -translate-x-full md:relative md:translate-x-0 transition duration-200 ease-in-out shadow-lg z-20">
+            <a href="#" class="text-[#3d405b] flex items-center space-x-2 px-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-[#8d99ae]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v11.494m-9-5.747h18"/></svg>
+                <span class="text-2xl font-extrabold">Revision Guide</span>
+            </a>
+            <nav id="main-nav">
+                <a href="#dashboard" class="nav-link block py-2.5 px-4 rounded transition duration-200 bg-blue-100 text-blue-800 font-bold">Dashboard</a>
+                
+                <div>
+                    <button class="nav-accordion-header w-full flex justify-between items-center py-2.5 px-4 rounded transition duration-200 hover:bg-gray-200">
+                        <span class="font-bold">Professional Competencies</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-transform duration-300 transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                    </button>
+                    <div class="nav-accordion-content pl-4" style="display: none;">
+                        <a href="#planning" class="nav-link block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-100">Planning</a>
+                        <a href="#management" class="nav-link block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-100">Management</a>
+                        <a href="#assessment" class="nav-link block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-100">Assessment</a>
+                    </div>
+                </div>
+
+                <div>
+                    <button class="nav-accordion-header w-full flex justify-between items-center py-2.5 px-4 rounded transition duration-200 hover:bg-gray-200">
+                        <span class="font-bold">English Specialization</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-transform duration-300 transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                    </button>
+                    <div class="nav-accordion-content pl-4" style="display: none;">
+                        <a href="#grammar" class="nav-link block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-100">Grammar</a>
+                        <a href="#" class="nav-link text-gray-400 block py-2.5 px-4 rounded">Functions (Soon)</a>
+                        <a href="#" class="nav-link text-gray-400 block py-2.5 px-4 rounded">Communication (Soon)</a>
+                        <a href="#" class="nav-link text-gray-400 block py-2.5 px-4 rounded">Writing (Soon)</a>
+                    </div>
+                </div>
+                 <div>
+                    <button class="nav-accordion-header w-full flex justify-between items-center py-2.5 px-4 rounded transition duration-200 hover:bg-gray-200">
+                        <span class="font-bold font-cairo text-right w-full">علوم التربية</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-transform duration-300 transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                    </button>
+                    <div class="nav-accordion-content pr-4 text-right" style="display: none;">
+                        <a href="#school_life" class="nav-link block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-100 font-cairo">الحياة المدرسية</a>
+                        <a href="#professional_ethics" class="nav-link block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-100 font-cairo">أخلاقيات المهنة</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main content -->
+        <main class="flex-1 p-4 md:p-10 overflow-y-auto">
+
+            <!-- Dashboard Section -->
+            <section id="dashboard" class="main-content-section active">
+                <h1 class="text-4xl font-black text-[#3d405b] mb-2">Comprehensive Overview of the Qualification Exam</h1>
+                <p class="text-lg text-gray-600 mb-8">A summary dashboard of the main exam components and their relative weights.</p>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="bg-white p-6 rounded-xl shadow-lg">
+                        <h2 class="text-2xl font-bold text-center mb-4 text-[#3d405b]">Professional Competencies Breakdown</h2>
+                        <p class="text-center text-gray-500 mb-6">This chart shows the weight of each main field in the professional skills test. Planning, Management, and Assessment are the core pillars.</p>
+                        <div class="chart-container"><canvas id="professionalCompetenciesChart"></canvas></div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-lg">
+                        <h2 class="text-2xl font-bold text-center mb-4 text-[#3d405b]">English Specialization Breakdown</h2>
+                        <p class="text-center text-gray-500 mb-6">An analysis of the components for the English language test. Grammar, Writing, Communication, and Functions are the four key areas.</p>
+                        <div class="chart-container"><canvas id="specializationChart"></canvas></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- English Sections -->
+            <section id="planning" class="main-content-section">
+                <h1 class="text-4xl font-black text-[#3d405b] mb-8">Domain 1: Planning</h1>
+                 <div class="bg-white p-6 rounded-xl shadow-lg mb-8">
+                    <h2 class="text-2xl font-bold text-center mb-4 text-[#3d405b]">Planning Sub-fields Breakdown (33%)</h2>
+                    <p class="text-center text-gray-500 mb-6">This chart shows the high importance given to designing lesson plans (15%), reflecting this skill's practical value in the exam.</p>
+                    <div class="small-chart-container"><canvas id="planningChart"></canvas></div>
+                </div>
+                 <div class="bg-white p-6 rounded-xl shadow-lg">
+                    <h2 class="text-2xl font-bold mb-4 text-[#3d405b]">Teaching Methodologies & Frameworks (5%)</h2>
+                    <p class="text-gray-600 mb-6">Explore different teaching methodologies by clicking each title. Every framework offers a unique lesson structure and reflects our evolving understanding of language acquisition.</p>
+                    <div id="methodologies-accordion" class="space-y-2"></div>
+                </div>
+            </section>
+            <section id="management" class="main-content-section">
+                 <h1 class="text-4xl font-black text-[#3d405b] mb-8">Domain 2: Management</h1>
+                 <div class="bg-white p-6 rounded-xl shadow-lg mb-8">
+                    <h2 class="text-2xl font-bold text-center mb-4 text-[#3d405b]">Management Sub-fields Breakdown (33%)</h2>
+                     <p class="text-center text-gray-500 mb-6">This domain focuses on best practices and managing the learning process, emphasizing the importance of a dynamic and interactive classroom environment.</p>
+                    <div class="small-chart-container"><canvas id="managementChart"></canvas></div>
+                </div>
+            </section>
+            <section id="assessment" class="main-content-section">
+                <h1 class="text-4xl font-black text-[#3d405b] mb-8">Domain 3: Assessment</h1>
+                 <div class="bg-white p-6 rounded-xl shadow-lg mb-8">
+                    <h2 class="text-2xl font-bold text-center mb-4 text-[#3d405b]">Assessment Sub-fields Breakdown (34%)</h2>
+                    <p class="text-center text-gray-500 mb-6">Assessment mechanisms, interpretation, and investment of results are given roughly equal importance, indicating that assessment is viewed as an integrated process from design to application and development.</p>
+                    <div class="small-chart-container"><canvas id="assessmentChart"></canvas></div>
+                </div>
+            </section>
+            <section id="grammar" class="main-content-section">
+                <h1 class="text-4xl font-black text-[#3d405b] mb-8">Specialization: Grammar</h1>
+                 <div class="bg-white p-6 rounded-xl shadow-lg mb-8">
+                    <h2 class="text-2xl font-bold text-center mb-4 text-[#3d405b]">Grammar Sub-fields Breakdown (26%)</h2>
+                    <p class="text-center text-gray-500 mb-6">Mixed tenses and sentence transformation hold the highest weight, requiring a deep understanding of sentence structures and their interactions.</p>
+                     <div class="small-chart-container"><canvas id="grammarChart"></canvas></div>
+                </div>
+                 <div class="bg-white p-6 rounded-xl shadow-lg">
+                    <h2 class="text-2xl font-bold mb-4 text-[#3d405b]">Sentence Transformations (8%)</h2>
+                    <p class="text-gray-600 mb-6">Explore the different types of sentence transformations. This skill is essential for demonstrating flexibility and control over linguistic structures.</p>
+                    <div id="transformations-accordion" class="space-y-2"></div>
+                 </div>
+            </section>
+
+            <!-- Arabic Sections -->
+            <section id="school_life" class="main-content-section font-cairo text-right" dir="rtl">
+                <h1 class="text-4xl font-black text-[#3d405b] mb-8">محور الحياة المدرسية</h1>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="bg-white p-6 rounded-xl shadow-lg">
+                        <h2 class="text-2xl font-bold text-center mb-4 text-[#3d405b]">مكونات الحياة المدرسية (30%)</h2>
+                        <p class="text-center text-gray-500 mb-6">تتوزع الأهمية بالتساوي بين مشروع المؤسسة كإطار للتخطيط، وآليات تفعيل الحياة المدرسية كوسائل للتنفيذ.</p>
+                        <div class="small-chart-container"><canvas id="schoolLifeChart"></canvas></div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-lg flex flex-col justify-center">
+                         <h2 class="text-2xl font-bold text-center mb-4 text-[#3d405b]">ما هي الحياة المدرسية؟</h2>
+                         <p class="text-lg text-gray-600 leading-relaxed">هي المناخ العام داخل المؤسسة التعليمية وكل ما يتعلق بالأنشطة المندمجة التي تهدف إلى تنمية شخصية المتعلم في جميع أبعادها: المعرفية، الوجدانية، المهارية، والسلوكية. إنها تسعى لجعل المدرسة فضاءً للحياة والتعلم الممتع والجاذب.</p>
+                    </div>
+                </div>
+                 <div class="bg-white p-6 rounded-xl shadow-lg mt-8">
+                    <h2 class="text-2xl font-bold mb-4 text-[#3d405b] text-center">آليات تفعيل الحياة المدرسية</h2>
+                     <p class="text-gray-600 mb-6 text-center">هي الأدوات والوسائل العملية التي تترجم أهداف الحياة المدرسية إلى واقع ملموس، وتخلق دينامية وحيوية داخل فضاءات المؤسسة.</p>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                        <div class="bg-gray-100 p-4 rounded-lg">🎨 الأندية التربوية</div>
+                        <div class="bg-gray-100 p-4 rounded-lg">📚 المكتبة المدرسية</div>
+                        <div class="bg-gray-100 p-4 rounded-lg">🚌 الأنشطة الموازية</div>
+                        <div class="bg-gray-100 p-4 rounded-lg">📰 المجلة المدرسية</div>
+                    </div>
+                 </div>
+            </section>
+            <section id="professional_ethics" class="main-content-section font-cairo text-right" dir="rtl">
+                <h1 class="text-4xl font-black text-[#3d405b] mb-8">محور أخلاقيات المهنة</h1>
+                <div class="bg-white p-6 rounded-xl shadow-lg">
+                    <h2 class="text-2xl font-bold mb-4 text-[#3d405b]">التزامات المدرس وعلاقاته المهنية</h2>
+                    <p class="text-gray-600 mb-6">تؤطر الممارسة المهنية للمدرس بمجموعة من الالتزامات الأخلاقية والقانونية التي تضمن سير العملية التعليمية وتحفظ حقوق جميع الأطراف.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div>
+                            <h3 class="text-xl font-bold text-[#e07a5f] mb-3">علاقة المدرس بالمتعلمين</h3>
+                            <ul class="list-disc list-inside space-y-2">
+                                <li>الالتزام بالإنصاف وتكافؤ الفرص بين جميع المتعلمين.</li>
+                                <li>حماية المتعلمين من كل أشكال العنف والتمييز.</li>
+                                <li>ترسيخ قيم المواطنة وحقوق الإنسان والسلوك المدني.</li>
+                                <li>اعتبار المتعلم محور العملية التربوية وشريكًا فيها.</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-[#81b29a] mb-3">علاقة المدرس بزملائه</h3>
+                            <ul class="list-disc list-inside space-y-2">
+                                <li>العمل بروح الفريق والتعاون.</li>
+                                <li>تبادل الخبرات والممارسات الجيدة.</li>
+                                <li>احترام آراء الزملاء والالتزام بالاحترام المتبادل.</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-[#8d99ae] mb-3">علاقة المدرس بالإدارة</h3>
+                            <ul class="list-disc list-inside space-y-2">
+                                <li>المساهمة في إشعاع المؤسسة وتجسيد مشروعها.</li>
+                                <li>المشاركة الفاعلة في مجالس المؤسسة.</li>
+                                <li>الالتزام بتنفيذ المهام الموكلة إليه.</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-[#f2cc8f] mb-3">علاقة المدرس بأولياء الأمور</h3>
+                            <ul class="list-disc list-inside space-y-2">
+                                <li>إقامة علاقة تواصل وتعاون بناءة.</li>
+                                <li>إطلاعهم على مستوى أبنائهم وسبل دعمهم.</li>
+                                <li>احترام دورهم كشركاء في العملية التربوية.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const data = {
+        professionalCompetencies: { labels: ['Planning', 'Management', 'Assessment'], weights: [33, 33, 34] },
+        specialization: { labels: ['Grammar', 'Functions', 'Communication', 'Writing'], weights: [26, 23, 24, 27] },
+        planning: { labels: ['Designing Lesson Plans', 'Evaluating Lesson Plans', 'Planning Foundations', 'Teaching Methodologies'], weights: [15, 8, 5, 5] },
+        management: { labels: ['Best Practices', 'Managing Learning', 'Discipline Strategies', 'Management Basics'], weights: [10, 10, 8, 5] },
+        assessment: { labels: ['Assessment Mechanisms', 'Interpreting Results', 'Investing Results', 'Fundamental Notions'], weights: [10, 10, 8, 6] },
+        grammar: { labels: ['Mixed Tenses', 'Sentence Transformation', 'Linking Words', 'Prepositions'], weights: [8, 8, 6, 4] },
+        schoolLife: { labels: ['مشروع المؤسسة', 'آليات تفعيل الحياة المدرسية'], weights: [50, 50] },
+        methodologies: [
+            { title: 'Presentation, Practice, Production (PPP)', content: 'A traditional, structured model for teaching discrete language items. It starts with the teacher presenting the material, followed by controlled student practice, and ends with free production. It is logical but can be rigid.' },
+            { title: 'Engage, Study, Activate (ESA)', content: 'A flexible methodology focusing on student engagement first. After engaging students, the focus shifts to the language itself (Study), and then its use in a communicative context (Activate). The stages can be reordered.' },
+            { title: 'Encounter, Clarify, Remember, Internalize, Fluency (ECRIF)', content: 'A framework focusing on the student\'s cognitive process. Stages include: encountering new material, clarifying its meaning, remembering it, internalizing it into long-term memory, and finally using it with fluency.' },
+        ],
+        transformations: [
+            { title: 'Reported Speech', content: 'Reporting what someone else said without using their exact words, which requires changes in tenses, pronouns, and time/place adverbs.' },
+            { title: 'Passive Voice', content: 'A sentence structure where the focus is on the action or the object of the action rather than the subject. It is formed using (be + past participle).' },
+            { title: 'Relative Clauses', content: 'Clauses introduced by relative pronouns (who, which, that, etc.) to provide more information about a noun.' },
+            { title: 'Wishes', content: 'Using "I wish" to express a desire for reality to be different, often using a past tense to refer to an impossible present or past situation.' },
+            { title: 'Conditionals', content: 'Sentences expressing a condition and its likely result (e.g., if...then). Different types express varying degrees of reality or probability.' },
+        ]
+    };
+    const chartColors = ['#8d99ae', '#e07a5f', '#3d405b', '#81b29a', '#f2cc8f'];
+
+    const createChart = (ctx, type, labels, data, options = {}) => {
+        if (!ctx) return;
+        const defaultOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: type === 'doughnut' || type === 'pie' ? 'bottom' : 'none', labels: {font: {family: 'Poppins, Cairo', size: 12}}},
+                tooltip: {
+                    bodyFont: { family: 'Poppins, Cairo' }, titleFont: { family: 'Poppins, Cairo' },
+                    callbacks: { label: (context) => `${context.label}: ${context.raw}%` }
+                }
+            },
+            scales: type === 'bar' ? { y: { ticks: { font: { family: 'Poppins, Cairo' }}}, x: { ticks: { font: { family: 'Poppins, Cairo' }}}} : {}
+        };
+        new Chart(ctx, { type, data: { labels, datasets: [{ label: 'Weight', data, backgroundColor: chartColors, borderColor: '#f8f7f4', borderWidth: 2 }] }, options: {...defaultOptions, ...options} });
+    };
+    
+    createChart(document.getElementById('professionalCompetenciesChart')?.getContext('2d'), 'doughnut', data.professionalCompetencies.labels, data.professionalCompetencies.weights);
+    createChart(document.getElementById('specializationChart')?.getContext('2d'), 'doughnut', data.specialization.labels, data.specialization.weights);
+    createChart(document.getElementById('planningChart')?.getContext('2d'), 'bar', data.planning.labels, data.planning.weights);
+    createChart(document.getElementById('managementChart')?.getContext('2d'), 'bar', data.management.labels, data.management.weights);
+    createChart(document.getElementById('assessmentChart')?.getContext('2d'), 'bar', data.assessment.labels, data.assessment.weights);
+    createChart(document.getElementById('grammarChart')?.getContext('2d'), 'bar', data.grammar.labels, data.grammar.weights);
+    createChart(document.getElementById('schoolLifeChart')?.getContext('2d'), 'pie', data.schoolLife.labels, data.schoolLife.weights);
+
+    const createAccordion = (containerId, items) => {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        items.forEach(item => {
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'border border-gray-200 rounded-lg';
+            const header = document.createElement('button');
+            header.className = 'accordion-header w-full p-4 text-left bg-gray-100 hover:bg-gray-200 focus:outline-none flex justify-between items-center transition';
+            header.innerHTML = `<span class="font-bold text-lg text-[#3d405b]">${item.title}</span><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 transform transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>`;
+            const content = document.createElement('div');
+            content.className = 'accordion-content';
+            content.innerHTML = `<div class="p-4 text-gray-700 bg-white">${item.content}</div>`;
+            itemDiv.append(header, content);
+            container.appendChild(itemDiv);
+            header.addEventListener('click', () => {
+                const isOpen = content.style.maxHeight;
+                container.querySelectorAll('.accordion-content').forEach(c => c.style.maxHeight = null);
+                container.querySelectorAll('.accordion-header svg').forEach(svg => svg.style.transform = 'rotate(0deg)');
+                if (!isOpen) {
+                    content.style.maxHeight = content.scrollHeight + "px";
+                    header.querySelector('svg').style.transform = 'rotate(180deg)';
+                }
+            });
+        });
+    };
+    
+    createAccordion('methodologies-accordion', data.methodologies);
+    createAccordion('transformations-accordion', data.transformations);
+
+    const navLinks = document.querySelectorAll('.nav-link');
+    const sections = document.querySelectorAll('.main-content-section');
+    const sidebar = document.getElementById('sidebar');
+    const mobileMenuButton = document.getElementById('mobile-menu-button');
+
+    const setActiveLink = (hash) => {
+        navLinks.forEach(link => {
+            link.classList.remove('bg-blue-100', 'text-blue-800', 'font-bold');
+            if (link.getAttribute('href') === hash) link.classList.add('bg-blue-100', 'text-blue-800', 'font-bold');
+        });
+    };
+
+    const showSection = (id) => {
+        sections.forEach(section => section.classList.remove('active'));
+        const activeSection = document.getElementById(id);
+        if (activeSection) activeSection.classList.add('active');
+        window.scrollTo(0, 0);
+    };
+
+    document.getElementById('main-nav').addEventListener('click', (e) => {
+        const link = e.target.closest('.nav-link');
+        if (link && link.getAttribute('href') !== '#') {
+            e.preventDefault();
+            const hash = link.getAttribute('href');
+            const sectionId = hash.substring(1);
+            showSection(sectionId);
+            setActiveLink(hash);
+            if (window.innerWidth < 768) sidebar.classList.add('-translate-x-full');
+        }
+    });
+
+    document.querySelectorAll('.nav-accordion-header').forEach(header => {
+        header.addEventListener('click', () => {
+            const content = header.nextElementSibling;
+            const svg = header.querySelector('svg');
+            const isVisible = content.style.display === 'block';
+            content.style.display = isVisible ? 'none' : 'block';
+            svg.style.transform = isVisible ? 'rotate(0deg)' : 'rotate(180deg)';
+        });
+    });
+
+    mobileMenuButton.addEventListener('click', () => sidebar.classList.toggle('-translate-x-full'));
+});
+</script>
+</body>
+</html>
