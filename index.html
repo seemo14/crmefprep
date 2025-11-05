@@ -1,224 +1,222 @@
-<!DOCTYPE html>
-<html lang="en" dir="ltr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Revision Guide - Teacher Qualification Exam</title>
-    <!-- Chosen Palette: Calm Academia -->
-    <!-- Application Structure Plan: The SPA uses a responsive dashboard layout with a persistent sidebar navigation. The structure is designed for intuitive exploration. The initial view is a welcome page. Clicking a navigation link dynamically updates the main content area, converting static information into interactive accordions and styled cards. This non-linear, interactive structure facilitates targeted revision. The application is primarily in English, with specific sections ("Educational Sciences" and "School Life") in Arabic to meet user requirements. -->
-    <!-- Visualization & Content Choices: 
-        - All quantitative charts have been removed as per user request.
-        - Methodologies (PPP, ESA), Grammar (Transformations), Writing (Types), etc., are organized into accordions for focused reading.
-        - Key concepts (Roles, Strategies, Principles) are presented in styled cards for better scannability and visual appeal.
-        - All choices adhere to NO SVG/Mermaid. Diagrams and layouts are built with HTML/Tailwind. -->
-    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&family=Poppins:wght@400;500;700;900&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Poppins', 'Cairo', sans-serif;
-            background-color: #f9fafb;
-            color: #1f2937;
-        }
-        .font-cairo { font-family: 'Cairo', sans-serif; }
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #e5e7eb; }
-        ::-webkit-scrollbar-thumb { background: #9ca3af; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #6b7280; }
-        .main-content-section { display: none; }
-        .main-content-section.active { display: block; animation: fadeIn 0.5s ease-in-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.4s ease-in-out; }
-        .card {
-            background-color: #ffffff;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.05);
-            padding: 2rem;
-            border: 1px solid #e5e7eb;
-        }
-        h1 { font-size: 2.75rem; font-weight: 900; color: #111827; }
-        h2 { font-size: 2rem; font-weight: 700; color: #1d4ed8; }
-        h3 { font-size: 1.5rem; font-weight: 700; }
-        p, li, .accordion-content div { font-size: 1.1rem; line-height: 1.8; color: #374151; }
-        .nav-link.active {
-            background-color: #e0e7ff;
-            color: #3730a3;
-            font-weight: 700;
-        }
-        .accordion-header {
-             border-bottom: 1px solid #e5e7eb;
-        }
-    </style>
-</head>
-<body class="antialiased">
-    <div class="relative min-h-screen md:flex">
-        <!-- Mobile Menu Button -->
-        <div class="md:hidden flex justify-between items-center p-4 bg-white shadow-md sticky top-0 z-20">
-            <h1 class="text-xl font-bold text-gray-800">Revision Guide</h1>
-            <button id="mobile-menu-button" class="text-gray-800">
-                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
-            </button>
-        </div>
-
-        <!-- Sidebar -->
-        <aside id="sidebar" class="bg-white text-gray-800 w-72 space-y-6 py-7 px-4 absolute inset-y-0 left-0 transform -translate-x-full md:relative md:translate-x-0 transition duration-300 ease-in-out shadow-xl z-30 border-r border-gray-200">
-            <a href="#dashboard" class="nav-link text-gray-900 flex items-center space-x-3 px-4">
-                <svg class="h-10 w-10 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v11.494m-9-5.747h18"/></svg>
-                <span class="text-2xl font-black">Revision Guide</span>
-            </a>
-            <nav id="main-nav" class="mt-10">
-                <a href="#dashboard" class="nav-link text-lg block py-3 px-4 rounded-lg transition duration-200 hover:bg-blue-50 active">Dashboard</a>
-                <div>
-                    <button class="nav-accordion-header text-lg w-full flex justify-between items-center py-3 px-4 rounded-lg transition duration-200 hover:bg-blue-50"><span class="font-bold">Professional Competencies</span><svg class="h-5 w-5 transition-transform duration-300 transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></button>
-                    <div class="nav-accordion-content pl-4 mt-2 space-y-1"><a href="#planning" class="nav-link block py-2 px-4 rounded-lg transition duration-200 hover:bg-blue-50 text-base">Planning</a><a href="#management" class="nav-link block py-2 px-4 rounded-lg transition duration-200 hover:bg-blue-50 text-base">Management</a><a href="#assessment" class="nav-link block py-2 px-4 rounded-lg transition duration-200 hover:bg-blue-50 text-base">Assessment</a></div>
-                </div>
-                <div>
-                    <button class="nav-accordion-header text-lg w-full flex justify-between items-center py-3 px-4 rounded-lg transition duration-200 hover:bg-blue-50"><span class="font-bold">English Specialization</span><svg class="h-5 w-5 transition-transform duration-300 transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></button>
-                    <div class="nav-accordion-content pl-4 mt-2 space-y-1"><a href="#grammar" class="nav-link block py-2 px-4 rounded-lg transition duration-200 hover:bg-blue-50 text-base">Grammar</a><a href="#functions" class="nav-link block py-2 px-4 rounded-lg transition duration-200 hover:bg-blue-50 text-base">Functions</a><a href="#communication" class="nav-link block py-2 px-4 rounded-lg transition duration-200 hover:bg-blue-50 text-base">Communication</a><a href="#writing" class="nav-link block py-2 px-4 rounded-lg transition duration-200 hover:bg-blue-50 text-base">Writing</a></div>
-                </div>
-                <div>
-                    <button class="nav-accordion-header text-lg w-full flex justify-between items-center py-3 px-4 rounded-lg transition duration-200 hover:bg-blue-50"><span class="font-cairo font-bold text-right w-full">علوم التربية</span><svg class="h-5 w-5 transition-transform duration-300 transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></button>
-                    <div class="nav-accordion-content pr-4 mt-2 space-y-1 text-right"><a href="#school_life" class="nav-link block py-2 px-4 rounded-lg transition duration-200 hover:bg-blue-50 font-cairo text-base">الحياة المدرسية</a><a href="#professional_ethics" class="nav-link block py-2 px-4 rounded-lg transition duration-200 hover:bg-blue-50 font-cairo text-base">أخلاقيات المهنة</a></div>
-                </div>
-            </nav>
-        </aside>
-
-        <!-- Main content -->
-        <main class="flex-1 p-6 md:p-12 overflow-y-auto bg-gray-50">
-            <section id="dashboard" class="main-content-section active"><h1 class="text-gray-800 mb-4">Welcome to the Interactive Revision Guide</h1><p class="text-gray-600 mb-12">This guide is designed to help you prepare for the Teacher Qualification Exam. Use the sidebar navigation to explore the different sections. Each topic is broken down into key concepts, principles, and practical strategies based on the official exam frameworks.</p><div class="card"><h2 class="text-blue-700 mb-4">How to Use This Guide</h2><p>Navigate through the competencies and subjects using the menu on the left. Focus on understanding the core principles and consider how you would apply them in a real classroom. The content is structured to align with the exam's focus areas, providing a comprehensive tool for your revision.</p></div></section>
-            
-            <section id="planning" class="main-content-section"><h1 class="mb-8">Domain 1: Planning</h1><div class="card mb-10"><h2 class="mb-4">Teaching Methodologies & Frameworks</h2><p class="text-gray-600 mb-6">Explore different teaching methodologies. Each offers a unique lesson structure and reflects our evolving understanding of language acquisition.</p><div id="methodologies-accordion" class="space-y-3"></div></div><div class="card mb-10"><h2 class="mb-4">Writing SMART Lesson Objectives</h2><p class="text-gray-600 mb-6">The SMART framework ensures objectives are robust and actionable, guiding all lesson planning decisions.</p><div id="smart-objectives-accordion" class="space-y-3"></div></div><div class="card"><h2 class="mb-4">Planning for Language Skills</h2><p class="text-gray-600 mb-6">Effective planning requires specific considerations for each of the four main language skills.</p><div id="skills-planning-accordion" class="space-y-3"></div></div></section>
-            
-            <section id="management" class="main-content-section"><h1 class="mb-8">Domain 2: Management</h1><div class="card mb-10"><h2 class="mb-4">Best Practices in Classroom Dynamics</h2><p class="text-gray-600 mb-6">This section covers the practical, day-to-day strategies that create a productive and engaging learning atmosphere.</p><div id="best-practices-accordion" class="space-y-3"></div></div><div class="card"><h2 class="mb-4">Managing Diverse Scenarios</h2><p class="text-gray-600 mb-6">Classrooms are diverse. These strategies address how to manage different learning styles, interaction patterns, and challenging class sizes.</p><div id="diverse-scenarios-accordion" class="space-y-3"></div></div></section>
-            
-            <section id="assessment" class="main-content-section"><h1 class="mb-8">Domain 3: Assessment</h1><div class="card mb-10"><h2 class="mb-4">Core Concepts in Educational Assessment</h2><p class="text-gray-600 mb-6">Assessment is the systematic process of gathering, reviewing, and using information about student learning to improve teaching.</p><div id="assessment-concepts-accordion" class="space-y-3"></div></div><div class="card mb-10"><h2 class="mb-4">Assessment Mechanisms & Frameworks</h2><p class="text-gray-600 mb-6">Explore modern assessment frameworks relevant to ELT that move away from traditional testing towards more authentic, performance-based evaluation.</p><div id="assessment-frameworks-accordion" class="space-y-3"></div></div><div class="card"><h2 class="mb-4">Designing Remedial Support</h2><p class="text-gray-600 mb-6">The true value of assessment is realized when its results are actively used to improve learning. Remedial work should be a targeted, data-driven response to student needs.</p><div id="remedial-support-accordion" class="space-y-3"></div></div></section>
-            
-            <section id="grammar" class="main-content-section"><h1 class="mb-8">Specialization: Grammar</h1><div class="card mb-10"><h2 class="mb-4">Sentence Transformations</h2><p class="text-gray-600 mb-6">Explore the different types of sentence transformations. This skill is essential for demonstrating flexibility and control over linguistic structures.</p><div id="transformations-accordion" class="space-y-3"></div></div><div class="card"><h2 class="mb-4">Understanding Key Grammar Points</h2><p class="text-gray-600 mb-6">Mastery of these concepts is crucial for building accurate and sophisticated sentences.</p><div id="key-grammar-accordion" class="space-y-3"></div></div></section>
-            
-            <section id="functions" class="main-content-section"><h1 class="mb-8">Specialization: Functions</h1><div class="card"><h2 class="mb-4">Communicative Functions</h2><p class="text-gray-600 mb-6">This area focuses on using language to achieve specific communicative goals in social situations.</p><div id="functions-accordion" class="space-y-3"></div></div></section>
-            
-            <section id="communication" class="main-content-section"><h1 class="mb-8">Specialization: Communication</h1><div class="card"><h2 class="mb-4">Principles of Communication</h2><p class="text-gray-600 mb-6">This section covers the types, barriers, and potential distortions of communication within a classroom context.</p><div id="communication-accordion" class="space-y-3"></div></div></section>
-            
-            <section id="writing" class="main-content-section"><h1 class="mb-8">Specialization: Writing</h1><div class="card"><h2 class="mb-4">Types & Processes of Writing</h2><p class="text-gray-600 mb-6">This area focuses on the ability to produce clear, organized, and coherent written texts for different purposes, emphasizing both the final product and the stages involved in its creation.</p><div id="writing-accordion" class="space-y-3"></div></div></section>
-
-            <!-- Arabic Sections -->
-            <section id="school_life" class="main-content-section font-cairo text-right" dir="rtl"><h1 class="mb-8">محور الحياة المدرسية</h1><div class="card mb-10"><h2 class="mb-4">ما هي الحياة المدرسية؟</h2><p class="text-gray-600 leading-relaxed">هي المناخ العام داخل المؤسسة التعليمية وكل ما يتعلق بالأنشطة المندمجة التي تهدف إلى تنمية شخصية المتعلم في جميع أبعادها: المعرفية، الوجدانية، المهارية، والسلوكية. إنها تسعى لجعل المدرسة فضاءً للحياة والتعلم الممتع والجاذب.</p></div><div class="card"><h2 class="mb-4 text-center">آليات تفعيل الحياة المدرسية</h2><p class="text-gray-600 mb-6 text-center">هي الأدوات والوسائل العملية التي تترجم أهداف الحياة المدرسية إلى واقع ملموس، وتخلق دينامية وحيوية داخل فضاءات المؤسسة.</p><div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center text-lg"><div class="bg-blue-50 p-4 rounded-lg">🎨 الأندية التربوية</div><div class="bg-blue-50 p-4 rounded-lg">📚 المكتبة المدرسية</div><div class="bg-blue-50 p-4 rounded-lg">🚌 الأنشطة الموازية</div><div class="bg-blue-50 p-4 rounded-lg">📰 المجلة المدرسية</div><div class="bg-blue-50 p-4 rounded-lg">🎤 الإذاعة المدرسية</div><div class="bg-blue-50 p-4 rounded-lg">👥 مشروع القسم</div><div class="bg-blue-50 p-4 rounded-lg">🎉 الاحتفالات والأعياد</div><div class="bg-blue-50 p-4 rounded-lg">🗣️ مجالس المؤسسة</div></div></div></section>
-            
-            <section id="professional_ethics" class="main-content-section font-cairo text-right" dir="rtl"><h1 class="mb-8">محور أخلاقيات المهنة</h1><div class="card"><h2 class="mb-4">التزامات المدرس وعلاقاته المهنية</h2><p class="text-gray-600 mb-6">تؤطر الممارسة المهنية للمدرس بمجموعة من الالتزامات الأخلاقية والقانونية التي تضمن سير العملية التعليمية وتحفظ حقوق جميع الأطراف.</p><div class="grid grid-cols-1 md:grid-cols-2 gap-10"><div class="border-r-4 border-red-300 pr-4"><h3 class="text-red-700 mb-3">علاقة المدرس بالمتعلمين</h3><ul class="list-disc list-inside space-y-2"><li>الالتزام بالإنصاف وتكافؤ الفرص بين جميع المتعلمين.</li><li>حماية المتعلمين من كل أشكال العنف والتمييز.</li><li>ترسيخ قيم المواطنة وحقوق الإنسان والسلوك المدني.</li><li>اعتبار المتعلم محور العملية التربوية وشريكًا فيها.</li></ul></div><div class="border-r-4 border-green-300 pr-4"><h3 class="text-green-700 mb-3">علاقة المدرس بزملائه</h3><ul class="list-disc list-inside space-y-2"><li>العمل بروح الفريق والتعاون.</li><li>تبادل الخبرات والممارسات الجيدة.</li><li>احترام آراء الزملاء والالتزام بالاحترام المتبادل.</li></ul></div><div class="border-r-4 border-blue-300 pr-4"><h3 class="text-blue-700 mb-3">علاقة المدرس بالإدارة</h3><ul class="list-disc list-inside space-y-2"><li>المساهمة في إشعاع المؤسسة وتجسيد مشروعها.</li><li>المشاركة الفاعلة في مجالس المؤسسة.</li><li>الالتزام بتنفيذ المهام الموكلة إليه.</li></ul></div><div class="border-r-4 border-yellow-300 pr-4"><h3 class="text-yellow-700 mb-3">علاقة المدرس بأولياء الأمور</h3><ul class="list-disc list-inside space-y-2"><li>إقامة علاقة تواصل وتعاون بناءة.</li><li>إطلاعهم على مستوى أبنائهم وسبل دعمهم.</li><li>احترام دورهم كشركاء في العملية التربوية.</li></ul></div></div></div></section>
-        </main>
-    </div>
-
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    const data = {
-        methodologies: [ { title: 'Presentation, Practice, Production (PPP)', content: 'A traditional, structured model for teaching discrete language items. It starts with the teacher presenting the material, followed by controlled student practice, and ends with free production. It is logical but can be rigid.' }, { title: 'Engage, Study, Activate (ESA)', content: 'A flexible methodology focusing on student engagement first. After engaging students, the focus shifts to the language itself (Study), and then its use in a communicative context (Activate). The stages can be reordered.' }, { title: 'Encounter, Clarify, Remember, Internalize, Fluency (ECRIF)', content: 'A framework focusing on the student\'s cognitive process. Stages include: encountering new material, clarifying its meaning, remembering it, internalizing it into long-term memory, and finally using it with fluency.' }, { title: 'Sheltered Instruction Observation Protocol (SIOP)', content: 'A research-based framework for planning and delivering instruction in content areas (like science or math) to English Language Learners (ELLs) in a way that makes the content comprehensible while promoting language development.' } ],
-        smartObjectives: [ { title: 'S - Specific', content: 'The objective should be well-defined, clear, and unambiguous. It should state exactly what the learner will be able to do.' }, { title: 'M - Measurable', content: 'The objective should specify how achievement will be demonstrated and assessed. There should be clear criteria for success.' }, { title: 'A - Achievable', content: 'The objective should be realistic and attainable for the students within the given timeframe and with the available resources. It should be challenging yet within reach.' }, { title: 'R - Relevant', content: 'The objective should be meaningful to the learners and align with their broader educational goals, needs, and the overall curriculum.' }, { title: 'T - Time-bound', content: 'The objective should have a defined timeframe for completion, usually by the end of the lesson or a series of lessons.' } ],
-        skillsPlanning: [ { title: 'Planning for Listening Skills', content: '<b>Pre-listening:</b> Activate prior knowledge, set a purpose for listening (e.g., listen for gist or specific details), and pre-teach crucial vocabulary. <br><b>While-listening:</b> Use manageable tasks like true/false questions, ordering events, or filling gaps. <br><b>Post-listening:</b> Consolidate understanding through discussion, summarizing, or linking the content to other skills.' }, { title: 'Planning for Speaking Skills', content: 'Decide the focus: <b>fluency</b> (effective communication) or <b>accuracy</b> (correct language use). Provide clear models, scaffold with sentence starters, and create a supportive environment. Use a range of activities from controlled drills to freer communicative tasks like debates or role-plays.' }, { title: 'Planning for Reading Skills', content: '<b>Pre-reading:</b> Similar to pre-listening; activate schema and pre-teach vocabulary. <br><b>While-reading:</b> Use tasks that promote different reading strategies like <b>skimming</b> (for main ideas) and <b>scanning</b> (for specific information). <br><b>Post-reading:</b> Extend understanding through discussion, summarizing, or creative response tasks.' }, { title: 'Planning for Writing Skills', content: 'Emphasize the <b>Process Approach:</b> Pre-writing (brainstorming), Drafting, Revising (focus on ideas and organization), Editing (focus on grammar/mechanics), and Publishing. Also use a <b>Genre-Based Approach</b> by analyzing model texts to teach the conventions of specific text types (e.g., essays, emails).' } ],
-        bestPractices: [ { title: 'Giving Clear Instructions', content: 'Plan and prepare instructions. Use simplified language and break tasks into steps. Demonstrate/model the activity and always check for understanding (CCQs).' }, { title: 'Eliciting Techniques', content: 'Draw out information from students rather than providing it directly. Use visuals, actions, descriptions, and questions to engage students and leverage their prior knowledge.' }, { title: 'Error Correction & Feedback', content: 'Balance correction with encouragement. Differentiate between accuracy and fluency activities. Use techniques like self-correction, peer correction, and delayed correction to provide feedback without disrupting flow.' }, { title: 'Managing Time, Space, and Board', content: 'Use timers to keep activities on track. Arrange the classroom to support interaction. Keep the board organized, visible, and use it as a dynamic tool for co-constructing knowledge.' } ],
-        diverseScenarios: [ { title: 'Learning Styles & Preferences', content: 'Cater to Visual, Auditory, Read/Write, and Kinesthetic learners by using a variety of activities and materials. In the Moroccan context, visual and kinesthetic activities are often preferred.' }, { title: 'Pair & Group Work', content: 'Use different interaction patterns to increase student talking time and promote collaboration. Give clear instructions, assign roles, set time limits, and monitor progress.' }, { title: 'Managing Large & Multilevel Classes', content: 'Employ strategies like flexible grouping, differentiated tasks, and peer tutoring to address the challenges of classes with many students or varying proficiency levels.' }, { title: 'Integrating Gamification', content: 'Use game design elements (points, badges, leaderboards) to increase engagement and motivation. Ensure the "game" supports the learning objectives rather than being a distraction.' } ],
-        assessmentConcepts: [ { title: 'Assessment vs. Testing vs. Evaluation', content: '<b>Testing</b> is a specific tool or method to measure learning (e.g., a quiz). <b>Assessment</b> is a broader process of gathering data to understand learning. <b>Evaluation</b> is the process of making judgments about the quality of learning based on assessment data.' }, { title: 'Formative vs. Summative Assessment', content: '<b>Formative Assessment (Assessment FOR Learning):</b> Occurs during instruction to monitor progress and provide feedback (e.g., observation, Q&A, exit tickets). <b>Summative Assessment (Assessment OF Learning):</b> Occurs at the end of a unit or term to evaluate mastery (e.g., final exams, projects).' }, { title: 'Key Qualities of a Good Test', content: '<b>Validity:</b> Does it measure what it\'s supposed to measure? <b>Reliability:</b> Does it produce consistent results? <b>Practicality:</b> Is it easy to administer and score? <b>Authenticity:</b> Do tasks resemble real-world language use? <b>Washback:</b> Does it have a positive impact on teaching and learning?' } ],
-        assessmentFrameworks: [ { title: 'Communicative Language Teaching (CLT) Assessment', content: 'Focuses on evaluating meaningful communication through performance-based tasks like role-plays, interviews, and group discussions. It often integrates multiple skills and uses authentic materials.' }, { title: 'Competency-Based Assessment (CBA)', content: 'Assesses whether students have achieved specific, predefined competencies or learning outcomes—what they can *do* with the language. It is outcome-oriented and often uses performance-based tasks with clear rubrics.' }, { title: 'School-Based Assessment (SBA)', content: 'Refers to assessments planned, developed, and administered by the students\' own teachers within the school context. It is continuous, integrated into classroom activities, and often includes self and peer assessment.' }, { title: 'Universal Design for Learning (UDL) in Assessment', content: 'Aims to create accessible and equitable assessments by offering flexibility. This includes multiple means of representation (how info is presented), expression (how students respond), and engagement (how to motivate students).' } ],
-        remedialSupport: [ { title: 'Step 1: Administer Assessment & Analyze Errors', content: 'Conduct a formative or summative assessment to identify learning gaps. Carefully analyze students\' errors to understand the root causes.' }, { title: 'Step 2: Group Students & Design Activities', content: 'Group students based on their specific needs. Create targeted activities, worksheets, or re-teaching sessions that directly address the identified weaknesses using varied approaches (visual, kinesthetic, etc.).' }, { title: 'Step 3: Implement & Re-assess', content: 'Conduct the remedial activities in a supportive environment, often in small groups. Afterwards, conduct a follow-up assessment to determine if the remedial support was effective and if students have mastered the concept.' } ],
-        keyGrammar: [ { title: 'Mixed Tenses', content: 'This involves using different tenses together in a sentence or text to show the relationship between various actions or states in time. For example, using the Past Perfect with the Past Simple to show one action happened before another in the past: "The train <b>had left</b> when I <b>arrived</b>."' }, { title: 'Linking Words / Conjunctions', content: 'Words or phrases used to connect ideas, sentences, or clauses. They show relationships like: <ul><li class="my-2"><b>Concession (e.g., although, even though):</b> "<u>Although</u> it was raining, we went for a walk."</li><li class="my-2"><b>Cause and Effect (e.g., because, so, as a result):</b> "He studied hard, <u>so</u> he passed the exam."</li><li class="my-2"><b>Purpose (e.g., to, in order to, so that):</b> "She saved money <u>in order to</u> buy a new car."</li></ul>' }, { title: 'Prepositions', content: 'Words that show the relationship between a noun or pronoun and other words in a sentence, often indicating time, place, or movement. Examples: <b>in</b> the morning, <b>at</b> the station, <b>on</b> the table, <b>after</b> the movie.' } ],
-        transformations: [ { title: 'Reported Speech', content: 'Reporting what someone else said without using their exact words, which requires changes in tenses, pronouns, and time/place adverbs.' }, { title: 'Passive Voice', content: 'A sentence structure where the focus is on the action or the object of the action rather than the subject. It is formed using (be + past participle).' }, { title: 'Relative Clauses', content: 'Clauses introduced by relative pronouns (who, which, that, etc.) to provide more information about a noun.' }, { title: 'Wishes', content: 'Using "I wish" to express a desire for reality to be different, often using a past tense to refer to an impossible present or past situation.' }, { title: 'Conditionals', content: 'Sentences expressing a condition and its likely result (e.g., if...then). Different types express varying degrees of reality or probability.' } ],
-        functions: [ { title: 'Making & Responding to Complaints', content: 'Involves expressing dissatisfaction (e.g., "I\'m afraid I have a complaint.") and responding appropriately by either accepting the complaint and apologizing ("I\'m so sorry about that."), or rejecting it politely ("I\'m afraid there\'s nothing we can do.").' }, { title: 'Asking for & Giving Advice', content: 'Focuses on the language needed to request guidance (e.g., "What should I do?") and to provide suggestions or recommendations (e.g., "You should...", "If I were you, I would...").' }, { title: 'Making Suggestions', content: 'Involves proposing a course of action to one or more people (e.g., "Let\'s go to the cinema.", "How about having pizza?"). Responses can be accepting ("That\'s a great idea!"), rejecting ("I\'d rather not."), or modifying the suggestion.' }, { title: 'Making & Responding to Requests', content: 'Covers the use of different levels of politeness when asking someone to do something, from informal (Can/Will you...?) to more polite forms (Could/Would you...?, Would you mind...?).' } ],
-        communication: [ { title: 'Types of Communication', content: 'Includes verbal and non-verbal communication (body language, eye contact). In the classroom, this can be intrapersonal (self-talk), interpersonal (between two people), or intergroup (between groups).' }, { title: 'Barriers to Effective Communication', content: 'Obstacles that can prevent clear communication. These include having a judgmental attitude, a "know-it-all" attitude, or an unconcerned/indifferent attitude, all of which block genuine dialogue.' }, { title: 'Distortions in Communication', content: 'Factors that can alter the intended meaning of a message. These can be linguistic (ambiguous words), psychological (preconceived ideas), cultural (different norms), or physical (noise, poor visibility).' } ],
-        writing: [ { title: 'Descriptive Writing', content: 'The primary purpose is to describe a person, place, or thing in such detail that a vivid picture is formed in the reader\'s mind. It relies on sensory details to appeal to the five senses.' }, { title: 'Narrative Writing', content: 'Focuses on telling a story. It involves a sequence of events (plot), characters, a setting, and often includes dialogue. Narratives can be real or imagined.' }, { title: 'Formal vs. Informal Emails', content: 'Formal emails are used for business or official purposes. They feature a clear structure, polite language, and a professional tone. Informal emails are for personal communication with friends or family and use casual language and a friendly tone.' }, { title: 'The Writing Process', content: 'A cyclical process that involves several stages: <b>1. Pre-writing</b> (brainstorming, outlining), <b>2. Drafting</b> (writing the first version), <b>3. Revising</b> (improving content and organization), <b>4. Editing</b> (checking for grammar and spelling errors), and <b>5. Publishing</b> (sharing the final work).' } ]
-    };
-
-    const createAccordion = (containerId, items) => {
-        const container = document.getElementById(containerId);
-        if (!container) return;
-        container.innerHTML = '';
-        items.forEach(item => {
-            const itemDiv = document.createElement('div');
-            itemDiv.className = 'border border-gray-200 rounded-lg overflow-hidden';
-            const header = document.createElement('button');
-            header.className = 'accordion-header w-full p-5 text-left bg-gray-50 hover:bg-gray-100 focus:outline-none flex justify-between items-center transition';
-            header.innerHTML = `<span class="font-bold text-lg text-gray-800">${item.title}</span><svg class="h-6 w-6 transform transition-transform duration-300 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>`;
-            const content = document.createElement('div');
-            content.className = 'accordion-content';
-            content.innerHTML = `<div class="p-5 text-gray-700 bg-white">${item.content}</div>`;
-            itemDiv.append(header, content);
-            container.appendChild(itemDiv);
-            header.addEventListener('click', () => {
-                const isOpen = content.style.maxHeight;
-                if (content.style.maxHeight) {
-                    content.style.maxHeight = null;
-                    header.querySelector('svg').style.transform = 'rotate(0deg)';
-                } else {
-                    content.style.maxHeight = content.scrollHeight + "px";
-                    header.querySelector('svg').style.transform = 'rotate(180deg)';
-                }
-            });
-        });
-    };
-    
-    // Populate all accordions
-    for (const key in data) {
-        if (Array.isArray(data[key])) {
-            createAccordion(`${key}-accordion`, data[key]);
-        }
-    }
-
-    const navLinks = document.querySelectorAll('.nav-link');
-    const sections = document.querySelectorAll('.main-content-section');
-    const sidebar = document.getElementById('sidebar');
-    const mobileMenuButton = document.getElementById('mobile-menu-button');
-
-    const setActiveLink = (hash) => {
-        navLinks.forEach(link => {
-            link.classList.remove('active');
-            if (link.getAttribute('href') === hash) link.classList.add('active');
-        });
-    };
-
-    const showSection = (id) => {
-        sections.forEach(section => section.classList.remove('active'));
-        const activeSection = document.getElementById(id);
-        if (activeSection) activeSection.classList.add('active');
-        window.scrollTo(0, 0);
-    };
-
-    const handleNavigation = (hash) => {
-        const sectionId = hash.substring(1) || 'dashboard';
-        showSection(sectionId);
-        setActiveLink(hash || '#dashboard');
-    };
-
-    document.getElementById('main-nav').addEventListener('click', (e) => {
-        const link = e.target.closest('.nav-link');
-        if (link && link.getAttribute('href') !== '#') {
-            e.preventDefault();
-            const hash = link.getAttribute('href');
-            history.pushState(null, null, hash);
-            handleNavigation(hash);
-            if (window.innerWidth < 768) sidebar.classList.add('-translate-x-full');
-        }
-    });
-
-    document.querySelectorAll('.nav-accordion-header').forEach(header => {
-        header.addEventListener('click', () => {
-            const content = header.nextElementSibling;
-            const svg = header.querySelector('svg');
-            const isVisible = content.style.display === 'block';
-            content.style.display = isVisible ? 'none' : 'block';
-            svg.style.transform = isVisible ? 'rotate(0deg)' : 'rotate(180deg)';
-        });
-    });
-    
-    mobileMenuButton.addEventListener('click', () => sidebar.classList.toggle('-translate-x-full'));
-
-    // Handle initial page load and back/forward browser navigation
-    handleNavigation(window.location.hash);
-    window.addEventListener('popstate', () => handleNavigation(window.location.hash));
-});
-</script>
-</body>
-</html>
-```
-
-The selected part of the code from the Canvas "Web Pack: Interactive Study Guide (EN/AR) - V2" is a complete HTML document that sets up an interactive revision guide. It includes HTML for the structure, CSS within `<style>` tags for a clean, responsive design using Tailwind CSS, and JavaScript within a `<script>` tag at the end to handle interactivity. The JavaScript populates accordion sections with data, manages the navigation between different subjects, and handles the mobile menu. It is designed to be a single, self-contained file.
-Can you remove "script src="[https://cdn.jsdelivr.net/npm/chart.js](https://cdn.jsdelivr.net/npm/chart.js)"></script>" in the head element of the HTML docume
+ (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
+diff --git a/index.html b/index.html
+new file mode 100644
+index 0000000000000000000000000000000000000000..3bc26728bdadc3afaf866ff0e0d4625da670825f
+--- /dev/null
++++ b/index.html
+@@ -0,0 +1,212 @@
++<!DOCTYPE html>
++<html lang="en">
++<head>
++    <meta charset="UTF-8">
++    <meta name="viewport" content="width=device-width, initial-scale=1.0">
++    <title>Middle School Teaching Console</title>
++    <script src="https://cdn.tailwindcss.com"></script>
++    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
++    <link rel="stylesheet" href="./assets/styles.css">
++</head>
++<body class="antialiased text-gray-900">
++    <header class="bg-gradient-to-r from-blue-600 via-sky-600 to-cyan-500 text-white shadow">
++        <div class="container mx-auto px-4 py-6 lg:px-12">
++            <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
++                <div>
++                    <p class="uppercase tracking-wider text-xs font-semibold text-blue-100">Teacher workspace</p>
++                    <h1 class="text-3xl lg:text-4xl font-bold mt-1">Middle School Gradebook &amp; Planning</h1>
++                    <p class="mt-2 text-blue-100 max-w-2xl">Manage your nine groups across 8th and 9th grade, capture marks in seconds, upload PDF rosters and time tables, and keep everything synced to Firebase.</p>
++                </div>
++                <div class="lg:text-right">
++                    <p class="text-sm text-blue-100">Signed in as</p>
++                    <p class="text-base lg:text-lg font-semibold bg-white/20 px-4 py-2 rounded inline-flex items-center gap-2">
++                        <span class="inline-flex h-2 w-2 rounded-full bg-emerald-300 animate-pulse"></span>
++                        <span id="userIdDisplay" class="font-mono">Loading...</span>
++                    </p>
++                </div>
++            </div>
++        </div>
++    </header>
++
++    <main class="container mx-auto max-w-7xl px-4 py-8 lg:px-12 lg:py-12 space-y-8">
++        <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
++            <div class="card">
++                <h2 class="card-title">1. Select Class</h2>
++                <p class="card-subtitle">Choose the grade, then the group you want to work with. Your view and data will filter automatically.</p>
++                <div class="space-y-4">
++                    <div>
++                        <p class="label">Grade</p>
++                        <div class="flex flex-wrap gap-2">
++                            <button id="grade-8" data-grade="8" class="grade-tab tab-inactive">8th Grade (2ASCG)</button>
++                            <button id="grade-9" data-grade="9" class="grade-tab tab-inactive">9th Grade (3ASCG)</button>
++                        </div>
++                    </div>
++                    <div id="group-selector" class="space-y-2 hidden">
++                        <p class="label">Group</p>
++                        <div class="flex flex-wrap gap-2" id="group-buttons-container">
++                            <button data-group="1" class="group-tab tab-inactive">Group 1</button>
++                            <button data-group="2" class="group-tab tab-inactive">Group 2</button>
++                            <button data-group="3" class="group-tab tab-inactive">Group 3</button>
++                            <button data-group="4" class="group-tab tab-inactive">Group 4</button>
++                            <button id="group-5-btn" data-group="5" class="group-tab tab-inactive">Group 5</button>
++                        </div>
++                    </div>
++                </div>
++            </div>
++
++            <div class="card lg:col-span-2">
++                <h2 class="card-title">2. Data Sources</h2>
++                <p class="card-subtitle">Bring in your official student rosters and time tables from PDF, or populate the database with the prepared dataset.</p>
++                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
++                    <button id="batch-upload-btn" class="accent-button">
++                        Upload the full 313-student dataset
++                    </button>
++                    <label class="accent-outline-button" for="student-pdf-input">
++                        <span class="font-semibold block">Upload student PDF</span>
++                        <span class="text-sm opacity-80">Extract names, IDs and assign to the active class.</span>
++                    </label>
++                    <input type="file" id="student-pdf-input" accept="application/pdf" class="hidden">
++                    <label class="accent-outline-button" for="timetable-pdf-input">
++                        <span class="font-semibold block">Upload time table PDF</span>
++                        <span class="text-sm opacity-80">Store schedule documents per grade/group for quick access.</span>
++                    </label>
++                    <input type="file" id="timetable-pdf-input" accept="application/pdf" class="hidden">
++                </div>
++                <div id="pdf-upload-progress" class="mt-4 hidden">
++                    <p class="text-sm font-medium text-gray-600">Processing PDF…</p>
++                    <div class="w-full h-2 bg-gray-200 rounded-full overflow-hidden mt-2">
++                        <div class="h-full bg-blue-500 animate-progress"></div>
++                    </div>
++                </div>
++            </div>
++        </section>
++
++        <section id="pdf-preview-section" class="card hidden">
++            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
++                <div>
++                    <h2 class="card-title">PDF extraction preview</h2>
++                    <p class="card-subtitle">Review the extracted student list. Confirm to merge them into the active class roster.</p>
++                </div>
++                <div class="flex gap-2">
++                    <button id="pdf-clear-btn" class="ghost-button">Discard</button>
++                    <button id="pdf-import-btn" class="accent-button">Import extracted students</button>
++                </div>
++            </div>
++            <div class="mt-4 overflow-x-auto">
++                <table class="data-table">
++                    <thead>
++                        <tr>
++                            <th>Name</th>
++                            <th>Student ID</th>
++                        </tr>
++                    </thead>
++                    <tbody id="pdf-preview-body">
++                    </tbody>
++                </table>
++            </div>
++        </section>
++
++        <section id="content-area" class="space-y-8 hidden">
++            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
++                <div class="card">
++                    <h2 class="card-title">Add student manually</h2>
++                    <p class="card-subtitle">Perfect for late arrivals or corrections. New students inherit the default mark template.</p>
++                    <form id="add-student-form" class="mt-4 space-y-4">
++                        <div>
++                            <label for="student-name" class="label">Student name (الاسم + النسب)</label>
++                            <input type="text" id="student-name" name="student-name" required class="input" placeholder="مثال: محمد حميش">
++                        </div>
++                        <div>
++                            <label for="student-id" class="label">Student ID (الرمز)</label>
++                            <input type="text" id="student-id" name="student-id" required class="input" placeholder="A170035490">
++                        </div>
++                        <button type="submit" class="accent-button w-full">Add student</button>
++                    </form>
++                </div>
++
++                <div class="card">
++                    <h2 class="card-title">Class resources</h2>
++                    <div class="space-y-6 mt-4">
++                        <div>
++                            <h3 class="section-heading">Time tables</h3>
++                            <p class="card-subtitle">Uploaded PDF time tables for this group. Click to download.</p>
++                            <ul id="timetable-list" class="divide-y divide-gray-200 mt-3"></ul>
++                            <p id="timetable-empty" class="text-sm text-gray-500">No time table uploaded yet.</p>
++                        </div>
++                        <div>
++                            <h3 class="section-heading">Lesson notebook</h3>
++                            <p class="card-subtitle">Keep quick notes on what you covered, homework reminders or discipline incidents.</p>
++                            <form id="lesson-note-form" class="space-y-3">
++                                <textarea id="lesson-note-input" class="input resize-y h-32" placeholder="Lesson summary, homework assigned, reminders..."></textarea>
++                                <div class="flex items-center justify-end gap-2">
++                                    <button type="button" id="lesson-note-reset" class="ghost-button">Clear</button>
++                                    <button type="submit" class="accent-outline-button">Save note</button>
++                                </div>
++                            </form>
++                            <p id="lesson-note-status" class="text-xs text-gray-500"></p>
++                        </div>
++                    </div>
++                </div>
++            </div>
++
++            <section class="card">
++                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
++                    <div>
++                        <h2 id="table-title" class="card-title">Student list</h2>
++                        <p class="card-subtitle">Type directly into the cells to update marks. Everything syncs to Firestore instantly.</p>
++                    </div>
++                    <button id="export-csv-btn" class="ghost-button">Export CSV</button>
++                </div>
++                <div class="mt-6 overflow-x-auto">
++                    <table class="gradebook-table">
++                        <thead>
++                            <tr>
++                                <th class="sticky-col">Student name</th>
++                                <th>Student ID</th>
++                                <th>Quiz 1<br><span>(/10)</span></th>
++                                <th>Quiz 2<br><span>(/10)</span></th>
++                                <th>Participation<br><span>(/5)</span></th>
++                                <th>Homework<br><span>(/5)</span></th>
++                                <th>Copybook<br><span>(/5)</span></th>
++                                <th>Discipline<br><span>(/5)</span></th>
++                                <th>Final<br><span>(/20)</span></th>
++                                <th>Observations</th>
++                                <th>Actions</th>
++                            </tr>
++                        </thead>
++                        <tbody id="gradebook-body">
++                            <tr>
++                                <td colspan="11" class="placeholder" id="loading-placeholder">Choose a grade and group to load students.</td>
++                            </tr>
++                        </tbody>
++                    </table>
++                </div>
++            </section>
++        </section>
++    </main>
++
++    <!-- Notification modal -->
++    <div id="notification-modal" class="modal hidden" role="dialog" aria-modal="true">
++        <div class="modal-content">
++            <h3 id="notification-title" class="modal-title">Notice</h3>
++            <p id="notification-message" class="modal-message">Something happened.</p>
++            <button id="notification-ok-btn" class="accent-button w-full mt-6">OK</button>
++        </div>
++    </div>
++
++    <!-- Confirmation modal -->
++    <div id="confirmation-modal" class="modal hidden" role="dialog" aria-modal="true">
++        <div class="modal-content">
++            <h3 id="confirmation-title" class="modal-title">Are you sure?</h3>
++            <p id="confirmation-message" class="modal-message">Do you really want to do this?</p>
++            <div class="grid grid-cols-2 gap-3 mt-6">
++                <button id="confirmation-cancel-btn" class="ghost-button">Cancel</button>
++                <button id="confirmation-confirm-btn" class="accent-button">Confirm</button>
++            </div>
++        </div>
++    </div>
++
++    <script src="./config.js"></script>
++    <script type="module" src="./src/app.js"></script>
++</body>
++</html>
+ 
+EOF
+)
