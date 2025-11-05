@@ -1,0 +1,18 @@
+ (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
+diff --git a/package.json b/package.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..b69080189825bbede60401ccb1780c18e82dffda
+--- /dev/null
++++ b/package.json
+@@ -0,0 +1,8 @@
++{
++  "name": "presentations",
++  "version": "1.0.0",
++  "type": "module",
++  "scripts": {
++    "test": "node --test"
++  }
++}
+ 
+EOF
+)
